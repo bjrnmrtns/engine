@@ -1,0 +1,6 @@
+[Project dependencies]
+libfreetype6-dev
+libsdl2-dev
+libglm-dev
+cmake
+git
