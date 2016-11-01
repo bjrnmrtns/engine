@@ -20,6 +20,8 @@ add_executable(demo
 	shaderprogram.h
 	ui.cpp
 	ui.h
+	RenderTools.h
+	UIRenderer.h
 	MeshRenderer.h
 )
 

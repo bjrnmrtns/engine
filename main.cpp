@@ -16,6 +16,7 @@
 #include "ui.h"
 #include "rendersource.h"
 #include "MeshRenderer.h"
+#include "UIRenderer.h"
 
 static const bool SCREEN_FULLSCREEN = true;
 static const int SCREEN_WIDTH  = 960;
@@ -201,7 +202,7 @@ int main()
     int uiRenderSourceSizes[] = {2, 3};
     RenderSource uiRenderSource(uiRenderSourceSizes, 2);
     ShaderProgram uiShaderProgram(uiVertexShaderSource, uiFragmentShaderSource);
-    
+    UI::Source ui;
     
     std::vector<textvertex> textbuf;
     GenerateText("Perde Kop", textbuf);
@@ -221,6 +222,7 @@ int main()
     bool rtsmode = false;
 
     Mesh::Renderer meshRenderer;
+    UI::Renderer uiRenderer;
     UIState uistate(width / 2, height / 2);
 	while(!quit)
 	{
@@ -243,12 +245,10 @@ int main()
         std::vector<uivertex> uibuffer;
         drawRect(uibuffer, uistate.mousex, uistate.mousey, 10, 10, glm::vec3(0.0f, 0.0f, 0.0f));
         uiRenderSource.BufferData(&uibuffer[0], uibuffer.size() * sizeof(uivertex));
-        uiShaderProgram.Use();
+        ui.BufferData(&uibuffer[0], uibuffer.size() * sizeof(uivertex));
         glm::mat4 projectionui = glm::ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f);
-        int projectionlocationui = glGetUniformLocation(uiShaderProgram.GetId(), "projection");
-        glUniformMatrix4fv(projectionlocationui, 1, false, glm::value_ptr(projectionui));
         glDisable(GL_DEPTH_TEST);
-        uiRenderSource.Draw();
+        uiRenderer.Draw(ui, projectionui);
         
         textRenderSource.BufferData(&textbuf[0], textbuf.size() * sizeof(textvertex));
         textShaderProgram.Use();
