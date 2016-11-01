@@ -15,35 +15,13 @@
 #include "shaderprogram.h"
 #include "ui.h"
 #include "rendersource.h"
+#include "MeshRenderer.h"
 
-static const bool SCREEN_FULLSCREEN = false;
+static const bool SCREEN_FULLSCREEN = true;
 static const int SCREEN_WIDTH  = 960;
 static const int SCREEN_HEIGHT = 540;
 static SDL_Window *window = NULL;
 static SDL_GLContext maincontext;
-
-static const char* vss =
-"#version 330 core\n"
-"layout (location = 0) in vec3 position;\n"
-"layout (location = 1) in vec3 color;\n"
-"out vec3 ourColor;\n"
-"uniform mat4 model;\n"
-"uniform mat4 view;\n"
-"uniform mat4 projection;\n"
-"void main()\n"
-"{\n"
-"  gl_Position = projection * view * model * vec4(position, 1.0f);\n"
-"  ourColor = color;\n"
-"}\n";
-
-static const char* fss =
-"#version 330 core\n"
-"in vec3 ourColor;\n"
-"out vec4 color;\n"
-"void main()\n"
-"{\n"
-"  color = vec4(ourColor, 1.0);\n"
-"}\n";
 
 static const char* uiVertexShaderSource =
 "#version 330 core\n"
@@ -172,7 +150,7 @@ int main()
 	SDL_GetWindowSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-    float cube[] = {
+    float cubeData[] {
         // Back face
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f, // Bottom-left
         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f, // bottom-right
@@ -217,10 +195,8 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,  // top-left
     };
 
-    int gameRenderSourceSizes[] = {3, 3};
-    RenderSource gameRenderSource(gameRenderSourceSizes, 2);
-    gameRenderSource.BufferData(&cube[0], sizeof(cube));
-    ShaderProgram shaderProgram(vss, fss);
+    Mesh::Source cube;
+    cube.BufferData(&cubeData[0], sizeof(cubeData));
     
     int uiRenderSourceSizes[] = {2, 3};
     RenderSource uiRenderSource(uiRenderSourceSizes, 2);
@@ -244,31 +220,24 @@ int main()
     
     bool rtsmode = false;
 
+    Mesh::Renderer meshRenderer;
     UIState uistate(width / 2, height / 2);
 	while(!quit)
 	{
         unsigned int current = SDL_GetTicks();
         unsigned int deltams = current - lastTime;
         lastTime = current;
-        
-        // 3d Scene Rendering
-        glm::mat4 model = glm::rotate(glm::mat4(1.0f), current / 500.0f, glm::vec3(0.5f, 1.0f, 0.0f));
-        glm::mat4 projection = glm::perspective(45.0f, width / (float)height, 0.1f, 100.0f);
-        shaderProgram.Use();
-        int modellocation = glGetUniformLocation(shaderProgram.GetId(), "model");
-        int viewlocation = glGetUniformLocation(shaderProgram.GetId(), "view");
-        int projectionlocation = glGetUniformLocation(shaderProgram.GetId(), "projection");
-        glUniformMatrix4fv(modellocation, 1, false, glm::value_ptr(model));
-        glUniformMatrix4fv(viewlocation, 1, false, glm::value_ptr(camera.GetViewMatrix()));
-        glUniformMatrix4fv(projectionlocation, 1, false, glm::value_ptr(projection));
+
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
-        
         glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        shaderProgram.Use();
-        gameRenderSource.Draw();
+
+        // 3d Scene Rendering
+        glm::mat4 model = glm::rotate(glm::mat4(1.0f), current / 500.0f, glm::vec3(0.5f, 1.0f, 0.0f));
+        glm::mat4 projection = glm::perspective(45.0f, width / (float)height, 0.1f, 100.0f);
+        meshRenderer.Draw(cube, model, camera.GetViewMatrix(), projection);
         
         // UI Rendering
         std::vector<uivertex> uibuffer;

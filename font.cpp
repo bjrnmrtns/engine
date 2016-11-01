@@ -28,7 +28,7 @@ bool GenerateText(const char text[], std::vector<textvertex>& textbuf)
     
     FT_Face face;
     
-    if(FT_New_Face(ft, "../../OpenSans-Regular.ttf", 0, &face)) {
+    if(FT_New_Face(ft, "../OpenSans-Regular.ttf", 0, &face)) {
         fprintf(stderr, "Could not open font\n");
         return 1;
     }
