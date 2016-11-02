@@ -8,6 +8,7 @@
 #include <vector>
 #include <iostream>
 #include <array>
+#include "TextRenderer.h"
 
 struct Character
 {
@@ -17,7 +18,7 @@ struct Character
     unsigned int advance;
 };
 
-bool GenerateText(const char text[], std::vector<textvertex>& textbuf)
+bool GenerateText(const char text[], std::vector<Text::Vertex>& textbuf)
 {
     FT_Library ft;
     
@@ -93,12 +94,12 @@ bool GenerateText(const char text[], std::vector<textvertex>& textbuf)
         float tw = cw / (float)width;
         float th = ch / (float)height;
         glm::vec3 color(0.0f, 1.0f, 1.0f);
-        textbuf.push_back(textvertex(glm::vec2(cx + cw, cy + ch), color, glm::vec2(c.position.x, th)));
-        textbuf.push_back(textvertex(glm::vec2(cx, cy + ch), color, glm::vec2(c.position.x - tw, th)));
-        textbuf.push_back(textvertex(glm::vec2(cx, cy), color, glm::vec2(c.position.x - tw, 0.0f)));
-        textbuf.push_back(textvertex(glm::vec2(cx + cw, cy + ch), color, glm::vec2(c.position.x, th)));
-        textbuf.push_back(textvertex(glm::vec2(cx, cy), color, glm::vec2(c.position.x - tw, 0.0f)));
-        textbuf.push_back(textvertex(glm::vec2(cx + cw, cy), color, glm::vec2(c.position.x, 0.0f)));
+        textbuf.push_back(Text::Vertex(glm::vec2(cx + cw, cy + ch), color, glm::vec2(c.position.x, th)));
+        textbuf.push_back(Text::Vertex(glm::vec2(cx, cy + ch), color, glm::vec2(c.position.x - tw, th)));
+        textbuf.push_back(Text::Vertex(glm::vec2(cx, cy), color, glm::vec2(c.position.x - tw, 0.0f)));
+        textbuf.push_back(Text::Vertex(glm::vec2(cx + cw, cy + ch), color, glm::vec2(c.position.x, th)));
+        textbuf.push_back(Text::Vertex(glm::vec2(cx, cy), color, glm::vec2(c.position.x - tw, 0.0f)));
+        textbuf.push_back(Text::Vertex(glm::vec2(cx + cw, cy), color, glm::vec2(c.position.x, 0.0f)));
     }
     
     for(Character& c : characters)

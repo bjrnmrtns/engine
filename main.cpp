@@ -17,6 +17,7 @@
 #include "rendersource.h"
 #include "MeshRenderer.h"
 #include "UIRenderer.h"
+#include "TextRenderer.h"
 
 static const bool SCREEN_FULLSCREEN = true;
 static const int SCREEN_WIDTH  = 960;
@@ -24,83 +25,25 @@ static const int SCREEN_HEIGHT = 540;
 static SDL_Window *window = NULL;
 static SDL_GLContext maincontext;
 
-static const char* uiVertexShaderSource =
-"#version 330 core\n"
-"layout (location = 0) in vec2 position;\n"
-"layout (location = 1) in vec3 color;\n"
-"out vec3 ourColor;\n"
-"uniform mat4 projection;\n"
-"void main()\n"
-"{\n"
-"  gl_Position = projection * vec4(position, 0.0f, 1.0f);\n"
-"  ourColor = color;\n"
-"}\n";
 
-static const char* uiFragmentShaderSource =
-"#version 330 core\n"
-"in vec3 ourColor;\n"
-"out vec4 color;\n"
-"void main()\n"
-"{\n"
-"  color = vec4(ourColor, 1.0f);\n"
-"}\n";
-
-static const char* fontVertexShaderSource =
-"#version 330 core\n"
-"layout (location = 0) in vec2 position;\n"
-"layout (location = 1) in vec3 color;\n"
-"layout (location = 2) in vec2 coord;\n"
-"out vec3 ourColor;\n"
-"out vec2 ourCoord;\n"
-"uniform mat4 projection;\n"
-"void main()\n"
-"{\n"
-"  gl_Position = projection * vec4(position, 0.0f, 1.0f);\n"
-"  ourColor = color;\n"
-"  ourCoord = coord;\n"
-"}\n";
-
-static const char* fontFragmentShaderSource =
-"#version 330 core\n"
-"in vec3 ourColor;\n"
-"in vec2 ourCoord;\n"
-"uniform sampler2D tex;\n"
-"out vec4 color;\n"
-"void main()\n"
-"{\n"
-"  color = vec4(texture(tex, ourCoord).r, 0.0f, 0.0f, 1.0f);\n"
-//"  color = vec4(ourColor, 1.0f);\n"
-"}\n";
-
-struct uivertex
+void drawRect(std::vector<UI::Vertex>& buffer, int x, int y, int w, int h, glm::vec3 color)
 {
-    uivertex(glm::vec2 pos, glm::vec3 color)
-    : pos(pos)
-    , color(color)
-    {
-    }
-    glm::vec2 pos;
-    glm::vec3 color;
-};
-
-void drawRect(std::vector<uivertex>& buffer, int x, int y, int w, int h, glm::vec3 color)
-{
-    buffer.push_back(uivertex(glm::vec2(x + w, y + h), color));
-    buffer.push_back(uivertex(glm::vec2(x, y + h), color));
-    buffer.push_back(uivertex(glm::vec2(x, y), color));
-    buffer.push_back(uivertex(glm::vec2(x + w, y + h), color));
-    buffer.push_back(uivertex(glm::vec2(x, y), color));
-    buffer.push_back(uivertex(glm::vec2(x + w, y), color));
+    buffer.push_back(UI::Vertex(glm::vec2(x + w, y + h), color));
+    buffer.push_back(UI::Vertex(glm::vec2(x, y + h), color));
+    buffer.push_back(UI::Vertex(glm::vec2(x, y), color));
+    buffer.push_back(UI::Vertex(glm::vec2(x + w, y + h), color));
+    buffer.push_back(UI::Vertex(glm::vec2(x, y), color));
+    buffer.push_back(UI::Vertex(glm::vec2(x + w, y), color));
 }
 
-void drawRectText(std::vector<textvertex>& buffer, int x, int y, int w, int h, glm::vec3 color)
+void drawRectText(std::vector<Text::Vertex>& buffer, int x, int y, int w, int h, glm::vec3 color)
 {
-    buffer.push_back(textvertex(glm::vec2(x + w, y + h), color, glm::vec2(1.0f, 1.0f)));
-    buffer.push_back(textvertex(glm::vec2(x, y + h), color, glm::vec2(0.0f, 1.0f)));
-    buffer.push_back(textvertex(glm::vec2(x, y), color, glm::vec2(0.0f, 0.0f)));
-    buffer.push_back(textvertex(glm::vec2(x + w, y + h), color, glm::vec2(1.0f, 1.0f)));
-    buffer.push_back(textvertex(glm::vec2(x, y), color, glm::vec2(0.0f, 0.0f)));
-    buffer.push_back(textvertex(glm::vec2(x + w, y), color, glm::vec2(1.0f, 0.0f)));
+    buffer.push_back(Text::Vertex(glm::vec2(x + w, y + h), color, glm::vec2(1.0f, 1.0f)));
+    buffer.push_back(Text::Vertex(glm::vec2(x, y + h), color, glm::vec2(0.0f, 1.0f)));
+    buffer.push_back(Text::Vertex(glm::vec2(x, y), color, glm::vec2(0.0f, 0.0f)));
+    buffer.push_back(Text::Vertex(glm::vec2(x + w, y + h), color, glm::vec2(1.0f, 1.0f)));
+    buffer.push_back(Text::Vertex(glm::vec2(x, y), color, glm::vec2(0.0f, 0.0f)));
+    buffer.push_back(Text::Vertex(glm::vec2(x + w, y), color, glm::vec2(1.0f, 0.0f)));
 }
 
 int main()
@@ -199,18 +142,13 @@ int main()
     Mesh::Source cube;
     cube.BufferData(&cubeData[0], sizeof(cubeData));
     
-    int uiRenderSourceSizes[] = {2, 3};
-    RenderSource uiRenderSource(uiRenderSourceSizes, 2);
-    ShaderProgram uiShaderProgram(uiVertexShaderSource, uiFragmentShaderSource);
     UI::Source ui;
+    Text::Source text;
     
-    std::vector<textvertex> textbuf;
+    std::vector<Text::Vertex> textbuf;
     GenerateText("Perde Kop", textbuf);
-    int textRenderSourceSizes[] = {2, 3, 2};
-    RenderSource textRenderSource(textRenderSourceSizes, 3);
-    std::vector<textvertex> textquad;
+    std::vector<Text::Vertex> textquad;
     drawRectText(textquad, 0, 0, 800, 30, glm::vec3(0.0f, 1.0f, 0.0f));
-    ShaderProgram textShaderProgram(fontVertexShaderSource, fontFragmentShaderSource);
     
     Camera camera;
     unsigned int lastTime = SDL_GetTicks();
@@ -223,6 +161,7 @@ int main()
 
     Mesh::Renderer meshRenderer;
     UI::Renderer uiRenderer;
+    Text::Renderer textRenderer;
     UIState uistate(width / 2, height / 2);
 	while(!quit)
 	{
@@ -242,19 +181,16 @@ int main()
         meshRenderer.Draw(cube, model, camera.GetViewMatrix(), projection);
         
         // UI Rendering
-        std::vector<uivertex> uibuffer;
+        std::vector<UI::Vertex> uibuffer;
         drawRect(uibuffer, uistate.mousex, uistate.mousey, 10, 10, glm::vec3(0.0f, 0.0f, 0.0f));
-        uiRenderSource.BufferData(&uibuffer[0], uibuffer.size() * sizeof(uivertex));
-        ui.BufferData(&uibuffer[0], uibuffer.size() * sizeof(uivertex));
+        ui.BufferData(&uibuffer[0], uibuffer.size() * sizeof(UI::Vertex));
         glm::mat4 projectionui = glm::ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f);
         glDisable(GL_DEPTH_TEST);
         uiRenderer.Draw(ui, projectionui);
         
-        textRenderSource.BufferData(&textbuf[0], textbuf.size() * sizeof(textvertex));
-        textShaderProgram.Use();
-        glUniformMatrix4fv(projectionlocationui, 1, false, glm::value_ptr(projectionui));
+        text.BufferData(&textbuf[0], textbuf.size() * sizeof(Text::Vertex));
         glDisable(GL_DEPTH_TEST);
-        textRenderSource.Draw();
+	textRenderer.Draw(text, projectionui);
         
 		SDL_GL_SwapWindow(window);
         SDL_WarpMouseInWindow(window, width / 2.0f, height / 2.0f);
