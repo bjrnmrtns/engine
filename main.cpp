@@ -12,9 +12,7 @@
 
 #include "font.h"
 #include "camera.h"
-#include "shaderprogram.h"
 #include "ui.h"
-#include "rendersource.h"
 #include "MeshRenderer.h"
 #include "UIRenderer.h"
 #include "TextRenderer.h"

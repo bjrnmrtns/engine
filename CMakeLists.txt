@@ -14,10 +14,6 @@ add_executable(demo
 	font.h
 	font.cpp
 	main.cpp
-	rendersource.cpp
-	rendersource.h
-	shaderprogram.cpp
-	shaderprogram.h
 	ui.cpp
 	ui.h
 	RenderTools.cpp
