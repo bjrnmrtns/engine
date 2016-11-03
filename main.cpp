@@ -115,10 +115,10 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,  // top-left
     };
 
-    Mesh::Source cube;
+    Graphics::Mesh::Source cube;
     cube.BufferData(&cubeData[0], sizeof(cubeData));
-    
-    UI::Source ui;
+
+    Graphics::UI::Source ui;
     
     Camera camera;
     unsigned int lastTime = SDL_GetTicks();
@@ -129,8 +129,8 @@ int main()
     
     bool rtsmode = false;
 
-    Mesh::Renderer meshRenderer;
-    UI::Renderer uiRenderer;
+    Graphics::Mesh::Renderer meshRenderer;
+    Graphics::UI::Renderer uiRenderer;
     UIState uistate(width / 2, height / 2);
 	while(!quit)
 	{
