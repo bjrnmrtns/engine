@@ -5,16 +5,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "VertexDefinitions.h"
 #include "RenderTools.h"
 
 namespace Mesh
 {
-struct Vertex
-{
-	glm::vec3 pos;
-	glm::vec3 col;
-};
-
 class Source
 {
 public:

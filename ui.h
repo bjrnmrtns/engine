@@ -1,6 +1,9 @@
 #ifndef UI_H
 #define UI_H
 
+#include "VertexDefinitions.h"
+#include <vector>
+
 struct UIState
 {
     UIState(int mousex, int mousey);
@@ -11,5 +14,7 @@ struct UIState
     int hotitem;
     int activeitem;
 };
+
+void generateSquare(std::vector<UI::Vertex>& buffer, int x, int y, int w, int h, glm::vec3 color);
 
 #endif

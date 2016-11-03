@@ -5,21 +5,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "VertexDefinitions.h"
 #include "RenderTools.h"
 
 namespace UI
 {
-struct Vertex
-{
-	Vertex(glm::vec2 pos, glm::vec3 col)
-    : pos(pos)
-    , col(col)
-    {
-    }
-    glm::vec2 pos;
-    glm::vec3 col;
-};
-
 class Source
 {
 public:
@@ -100,6 +90,5 @@ static constexpr char* fss =
 "}\n";
 };
 }
-
 
 #endif

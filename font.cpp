@@ -8,7 +8,7 @@
 #include <vector>
 #include <iostream>
 #include <array>
-#include "TextRenderer.h"
+#include "VertexDefinitions.h"
 
 struct Character
 {
@@ -109,3 +109,15 @@ bool GenerateText(const char text[], std::vector<Text::Vertex>& textbuf)
     
     return true;
 }
+
+
+void generateText(std::vector<Text::Vertex>& buffer, int x, int y, int w, int h, glm::vec3 color)
+{
+    buffer.push_back(Text::Vertex(glm::vec2(x + w, y + h), color, glm::vec2(1.0f, 1.0f)));
+    buffer.push_back(Text::Vertex(glm::vec2(x, y + h), color, glm::vec2(0.0f, 1.0f)));
+    buffer.push_back(Text::Vertex(glm::vec2(x, y), color, glm::vec2(0.0f, 0.0f)));
+    buffer.push_back(Text::Vertex(glm::vec2(x + w, y + h), color, glm::vec2(1.0f, 1.0f)));
+    buffer.push_back(Text::Vertex(glm::vec2(x, y), color, glm::vec2(0.0f, 0.0f)));
+    buffer.push_back(Text::Vertex(glm::vec2(x + w, y), color, glm::vec2(1.0f, 0.0f)));
+}
+

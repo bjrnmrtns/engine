@@ -15,34 +15,12 @@
 #include "ui.h"
 #include "MeshRenderer.h"
 #include "UIRenderer.h"
-#include "TextRenderer.h"
 
 static const bool SCREEN_FULLSCREEN = true;
 static const int SCREEN_WIDTH  = 960;
 static const int SCREEN_HEIGHT = 540;
 static SDL_Window *window = NULL;
 static SDL_GLContext maincontext;
-
-
-void drawRect(std::vector<UI::Vertex>& buffer, int x, int y, int w, int h, glm::vec3 color)
-{
-    buffer.push_back(UI::Vertex(glm::vec2(x + w, y + h), color));
-    buffer.push_back(UI::Vertex(glm::vec2(x, y + h), color));
-    buffer.push_back(UI::Vertex(glm::vec2(x, y), color));
-    buffer.push_back(UI::Vertex(glm::vec2(x + w, y + h), color));
-    buffer.push_back(UI::Vertex(glm::vec2(x, y), color));
-    buffer.push_back(UI::Vertex(glm::vec2(x + w, y), color));
-}
-
-void drawRectText(std::vector<Text::Vertex>& buffer, int x, int y, int w, int h, glm::vec3 color)
-{
-    buffer.push_back(Text::Vertex(glm::vec2(x + w, y + h), color, glm::vec2(1.0f, 1.0f)));
-    buffer.push_back(Text::Vertex(glm::vec2(x, y + h), color, glm::vec2(0.0f, 1.0f)));
-    buffer.push_back(Text::Vertex(glm::vec2(x, y), color, glm::vec2(0.0f, 0.0f)));
-    buffer.push_back(Text::Vertex(glm::vec2(x + w, y + h), color, glm::vec2(1.0f, 1.0f)));
-    buffer.push_back(Text::Vertex(glm::vec2(x, y), color, glm::vec2(0.0f, 0.0f)));
-    buffer.push_back(Text::Vertex(glm::vec2(x + w, y), color, glm::vec2(1.0f, 0.0f)));
-}
 
 int main()
 {
@@ -141,12 +119,6 @@ int main()
     cube.BufferData(&cubeData[0], sizeof(cubeData));
     
     UI::Source ui;
-    Text::Source text;
-    
-    std::vector<Text::Vertex> textbuf;
-    GenerateText("Perde Kop", textbuf);
-    std::vector<Text::Vertex> textquad;
-    drawRectText(textquad, 0, 0, 800, 30, glm::vec3(0.0f, 1.0f, 0.0f));
     
     Camera camera;
     unsigned int lastTime = SDL_GetTicks();
@@ -159,7 +131,6 @@ int main()
 
     Mesh::Renderer meshRenderer;
     UI::Renderer uiRenderer;
-    Text::Renderer textRenderer;
     UIState uistate(width / 2, height / 2);
 	while(!quit)
 	{
@@ -180,15 +151,11 @@ int main()
         
         // UI Rendering
         std::vector<UI::Vertex> uibuffer;
-        drawRect(uibuffer, uistate.mousex, uistate.mousey, 10, 10, glm::vec3(0.0f, 0.0f, 0.0f));
+        generateSquare(uibuffer, uistate.mousex, uistate.mousey, 10, 10, glm::vec3(0.0f, 0.0f, 0.0f));
         ui.BufferData(&uibuffer[0], uibuffer.size() * sizeof(UI::Vertex));
         glm::mat4 projectionui = glm::ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f);
         glDisable(GL_DEPTH_TEST);
         uiRenderer.Draw(ui, projectionui);
-        
-        text.BufferData(&textbuf[0], textbuf.size() * sizeof(Text::Vertex));
-        glDisable(GL_DEPTH_TEST);
-	textRenderer.Draw(text, projectionui);
         
 		SDL_GL_SwapWindow(window);
         SDL_WarpMouseInWindow(window, width / 2.0f, height / 2.0f);

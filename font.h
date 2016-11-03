@@ -3,7 +3,7 @@
 
 #include <glm/glm.hpp>
 #include <vector>
-#include "TextRenderer.h"
+#include "VertexDefinitions.h"
 
 bool GenerateText(const char text[], std::vector<Text::Vertex>& textbuf);
 

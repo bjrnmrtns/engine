@@ -5,23 +5,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include "VertexDefinitions.h"
 #include "RenderTools.h"
 
 namespace Text
 {
-struct Vertex
-{
-    Vertex(glm::vec2 pos, glm::vec3 col, glm::vec2 texcoord)
-    : pos(pos)
-    , col(col)
-    , texcoord(texcoord)
-    {
-    }
-    glm::vec2 pos;
-    glm::vec3 col;
-    glm::vec2 texcoord;
-};
-
 class Source
 {
 public:
