@@ -10,11 +10,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
+#include <array>
+
 #include "font.h"
 #include "camera.h"
 #include "ui.h"
 #include "RenderMesh.h"
 #include "RenderUI.h"
+#include "VertexDefinitions.h"
 
 static const bool SCREEN_FULLSCREEN = true;
 static const int SCREEN_WIDTH  = 960;
@@ -74,7 +77,7 @@ int main()
 
     float cubeData[] {
         // Back face
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f, // Bottom-left
+        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // Bottom-left
         0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f, // bottom-right
         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f, // top-right
         0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f, // top-right
@@ -114,11 +117,11 @@ int main()
         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f, // bottom-right
         0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f, // bottom-right
         -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f, // bottom-left
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,  // top-left
+        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,  // top-left*/
     };
 
     Render::Mesh::Source cube;
-    cube.BufferData(&cubeData[0], sizeof(cubeData));
+    cube.BufferData((::Mesh::Vertex*)cubeData, sizeof(cubeData) / sizeof(::Mesh::Vertex));
 
     Render::UI::Source ui;
     
@@ -154,7 +157,7 @@ int main()
         // UI Rendering
         std::vector<UI::Vertex> uibuffer;
         generateSquare(uibuffer, uistate.mousex, uistate.mousey, 10, 10, glm::vec3(0.0f, 0.0f, 0.0f));
-        ui.BufferData(&uibuffer[0], uibuffer.size() * sizeof(UI::Vertex));
+        ui.BufferData(&uibuffer[0], uibuffer.size());
         glm::mat4 projectionui = glm::ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f);
         glDisable(GL_DEPTH_TEST);
         uiRenderer.Draw(ui, projectionui);
