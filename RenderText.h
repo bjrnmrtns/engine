@@ -1,5 +1,5 @@
-#ifndef UI_RENDERER_H
-#define UI_RENDERER_H
+#ifndef TEXT_RENDERER_H
+#define TEXT_RENDERER_H
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -8,8 +8,8 @@
 #include "VertexDefinitions.h"
 #include "RenderTools.h"
 
-namespace Graphics {
-    namespace UI {
+namespace Render {
+    namespace Text {
         class Source {
         public:
             Source() {
@@ -17,10 +17,12 @@ namespace Graphics {
                 glGenVertexArrays(1, &vao);
                 glBindVertexArray(vao);
                 glBindBuffer(GL_ARRAY_BUFFER, vbo);
-                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(::UI::Vertex), (void *) 0);
+                glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) 0);
                 glEnableVertexAttribArray(0);
-                glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(::UI::Vertex), (void *) (2 * sizeof(float)));
+                glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (2 * sizeof(float)));
                 glEnableVertexAttribArray(1);
+                glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void *) (5 * sizeof(float)));
+                glEnableVertexAttribArray(2);
             }
 
             template<typename T>
@@ -45,7 +47,7 @@ namespace Graphics {
             unsigned int vbo;
             unsigned int vao;
             int elements = -1;
-            const int stride = 5;
+            const int stride = 7;
         };
 
         class Renderer {
@@ -69,24 +71,31 @@ namespace Graphics {
                     "#version 330 core\n"
                             "layout (location = 0) in vec2 position;\n"
                             "layout (location = 1) in vec3 color;\n"
+                            "layout (location = 2) in vec2 coord;\n"
                             "out vec3 ourColor;\n"
+                            "out vec2 ourCoord;\n"
                             "uniform mat4 projection;\n"
                             "void main()\n"
                             "{\n"
                             "  gl_Position = projection * vec4(position, 0.0f, 1.0f);\n"
                             "  ourColor = color;\n"
+                            "  ourCoord = coord;\n"
                             "}\n";
 
             static constexpr char *fss =
                     "#version 330 core\n"
                             "in vec3 ourColor;\n"
+                            "in vec2 ourCoord;\n"
+                            "uniform sampler2D tex;\n"
                             "out vec4 color;\n"
                             "void main()\n"
                             "{\n"
-                            "  color = vec4(ourColor, 1.0f);\n"
+                            "  color = vec4(texture(tex, ourCoord).r, 0.0f, 0.0f, 1.0f);\n"
+//"  color = vec4(ourColor, 1.0f);\n"
                             "}\n";
         };
     }
 }
+
 
 #endif

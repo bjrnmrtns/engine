@@ -13,8 +13,8 @@
 #include "font.h"
 #include "camera.h"
 #include "ui.h"
-#include "MeshRenderer.h"
-#include "UIRenderer.h"
+#include "RenderMesh.h"
+#include "RenderUI.h"
 
 static const bool SCREEN_FULLSCREEN = true;
 static const int SCREEN_WIDTH  = 960;
@@ -115,10 +115,10 @@ int main()
         -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,  // top-left
     };
 
-    Graphics::Mesh::Source cube;
+    Render::Mesh::Source cube;
     cube.BufferData(&cubeData[0], sizeof(cubeData));
 
-    Graphics::UI::Source ui;
+    Render::UI::Source ui;
     
     Camera camera;
     unsigned int lastTime = SDL_GetTicks();
@@ -129,8 +129,8 @@ int main()
     
     bool rtsmode = false;
 
-    Graphics::Mesh::Renderer meshRenderer;
-    Graphics::UI::Renderer uiRenderer;
+    Render::Mesh::Renderer meshRenderer;
+    Render::UI::Renderer uiRenderer;
     UIState uistate(width / 2, height / 2);
 	while(!quit)
 	{

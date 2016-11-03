@@ -18,8 +18,10 @@ add_executable(demo
 	ui.h
 	RenderTools.cpp
 	RenderTools.h
-	UIRenderer.h
-	MeshRenderer.h
+	RenderUI.h
+	RenderUI.h
+	RenderText.h
+	VertexDefinitions.h
 )
 
 target_include_directories(demo PUBLIC
