@@ -22,6 +22,8 @@ static const int SCREEN_HEIGHT = 540;
 static SDL_Window *window = NULL;
 static SDL_GLContext maincontext;
 
+//TODO: Create Mesh Generators / UI Generators
+//TODO: RenderText/RenderMesh/RenderUI should move impl to cpp
 int main()
 {
 	SDL_Event event;

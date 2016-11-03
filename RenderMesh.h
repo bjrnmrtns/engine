@@ -48,13 +48,6 @@ namespace Render {
             const int stride = 6;
         };
 
-// UIRenderer -> contains hardcoded ui shader + matrices. Can render multiple uiRenderSources/data
-// MeshRenderer -> contains hardcoded mesh shader + matrices. Can render multiple meshes/data
-// Apart from a Renderable we do not need any abstractions regarding, opengl. We can even hardcode
-// glVertexAttribPointer
-// Use MeshRenderer as test put helper functions and MeshRenderer in seperate file for rendering. RenderSource code needs to be integrated in MeshRenderer.
-
-
         class Renderer {
         public:
             Renderer()
