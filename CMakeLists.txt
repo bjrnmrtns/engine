@@ -18,9 +18,9 @@ add_executable(demo
 	ui.h
 	RenderTools.cpp
 	RenderTools.h
-	RenderUI.h
-	RenderUI.h
+	RenderMesh.h
 	RenderText.h
+	RenderUI.h
 	VertexDefinitions.h
 )
 
