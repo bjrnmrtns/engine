@@ -2,12 +2,14 @@
 #define VERTEX_DEFINITIONS_H
 
 #include <glm/glm.hpp>
+#include <vector>
 
 namespace Mesh {
     struct Vertex {
         glm::vec3 pos;
         glm::vec3 col;
     };
+    typedef std::vector<Vertex> TStaticMesh;
 }
 namespace UI {
     struct Vertex {

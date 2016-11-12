@@ -16,7 +16,6 @@
 #include "ui.h"
 #include "RenderMesh.h"
 #include "RenderUI.h"
-#include "VertexDefinitions.h"
 #include "Model.h"
 
 static const bool SCREEN_FULLSCREEN = true;
@@ -25,12 +24,22 @@ static const int SCREEN_HEIGHT = 540;
 static SDL_Window *window = NULL;
 static SDL_GLContext maincontext;
 
-namespace CameraConstants
+namespace ViewConstants
 {
-    namespace TopDownView {
-        glm::vec3 Eye(0.0f, 1.0f, 0.0f); // Origin of camera
+    namespace TopView {
+        glm::vec3 Eye(0.0f, 6.0f, 0.0f); // Origin of camera
         glm::vec3 Center(0.0f, 0.0f, 0.0f); // Point you are looking at
         glm::vec3 Up(0.0f, 0.0f, -1.0f); // Up vector of camera
+    }
+    namespace FrontView {
+        glm::vec3 Eye(0.0f, 0.0f, 6.0f); // Origin of camera
+        glm::vec3 Center(0.0f, 0.0f, 0.0f); // Point you are looking at
+        glm::vec3 Up(0.0f, 1.0f, 0.0f); // Up vector of camera
+    }
+    namespace SideView {
+        glm::vec3 Eye(6.0f, 0.0f, 0.0f); // Origin of camera
+        glm::vec3 Center(0.0f, 0.0f, 0.0f); // Point you are looking at
+        glm::vec3 Up(0.0f, 1.0f, 0.0f); // Up vector of camera
     }
 }
 
@@ -83,8 +92,11 @@ int main()
 	glViewport(0, 0, width, height);
 
     Render::Mesh::Source bigPlane;
-    const std::vector<::Mesh::Vertex> bigPlaneData = Model::XZPlusPlane();
+    const ::Mesh::TStaticMesh bigPlaneData = Model::Box();
     bigPlane.BufferData((::Mesh::Vertex*)&bigPlaneData[0], bigPlaneData.size());
+    glm::mat4 projectionM = glm::perspective(45.0f, width / (float)height, 0.1f, 100.0f);
+    glm::mat4 viewM = glm::lookAt(ViewConstants::TopView::Eye, ViewConstants::TopView::Center,
+                                  ViewConstants::TopView::Up);
 
     Render::UI::Source ui;
     
@@ -112,11 +124,9 @@ int main()
         glClearColor(1.0f, 1.0f, 1.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // 3d Scene Rendering
-        glm::mat4 projection = glm::perspective(45.0f, width / (float)height, 0.1f, 100.0f);
-        glm::mat4 view = glm::lookAt(CameraConstants::TopDownView::Eye, CameraConstants::TopDownView::Center,
-                                     CameraConstants::TopDownView::Up);
-        meshRenderer.Draw(bigPlane, glm::mat4(1.0f), view, projection);
+        // 3D rendering
+        glm::mat4 modelM = glm::rotate(glm::mat4(1.0f), current / 500.0f, glm::vec3(1.0f, 1.0f, 1.0f));
+        meshRenderer.Draw(bigPlane, modelM, viewM, projectionM);
 
         // UI Rendering
         std::vector<UI::Vertex> uibuffer;

@@ -6,7 +6,7 @@
 
 namespace Model
 {
-    const std::vector<::Mesh::Vertex> XZPlusPlane();
+    const ::Mesh::TStaticMesh Box();
 }
 
 #endif
