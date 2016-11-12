@@ -1,6 +1,14 @@
 #include "Model.h"
 
 namespace Model {
+    namespace Color {
+        const glm::vec3       Red(1.0f, 0.0f, 0.0f);
+        const glm::vec3   DarkRed(0.5f, 0.0f, 0.0f);
+        const glm::vec3     Green(0.0f, 1.0f, 0.0f);
+        const glm::vec3 DarkGreen(0.0f, 0.5f, 0.0f);
+        const glm::vec3      Blue(0.0f, 0.0f, 1.0f);
+        const glm::vec3  DarkBlue(0.0f, 0.0f, 0.5f);
+    }
     const glm::vec3 A(-1.0f, -1.0f,  1.0f);
     const glm::vec3 B( 1.0f, -1.0f,  1.0f);
     const glm::vec3 C(-1.0f,  1.0f,  1.0f);
@@ -15,18 +23,18 @@ namespace Model {
     const glm::vec3 YMin ( 0.0f, -1.0f,  0.0f);
     const glm::vec3 ZPlus( 0.0f,  0.0f,  1.0f);
     const glm::vec3 ZMin ( 0.0f,  0.0f, -1.0f);
-    const ::Mesh::TStaticMesh XYPlusPlane { {A, ZPlus}, {C, ZPlus}, {B, ZPlus},
-                                            {B, ZPlus}, {C, ZPlus}, {D, ZPlus} };
-    const ::Mesh::TStaticMesh XYMinPlane  { {G, ZMin}, {E, ZMin}, {F, ZMin},
-                                            {G, ZMin}, {F, ZMin}, {H, ZMin} };
-    const ::Mesh::TStaticMesh XZPlusPlane { {C, YPlus}, {G, YPlus}, {D, YPlus},
-                                            {D, YPlus}, {G, YPlus}, {H, YPlus} };
-    const ::Mesh::TStaticMesh XZMinPlane  { {E, YMin}, {A, YMin}, {B, YMin},
-                                            {E, YMin}, {B, YMin}, {F, YMin} };
-    const ::Mesh::TStaticMesh YZPlusPlane { {B, XPlus}, {D, XPlus}, {F, XPlus},
-                                            {F, XPlus}, {D, XPlus}, {H, XPlus} };
-    const ::Mesh::TStaticMesh YZMinPlane  { {C, XMin}, {A, XMin}, {E, XMin},
-                                            {C, XMin}, {E, XMin}, {G, XMin} };
+    const ::Mesh::TStaticMesh XYPlusPlane { {A, ZPlus, Color::Blue}, {C, ZPlus, Color::Blue}, {B, ZPlus, Color::Blue},
+                                            {B, ZPlus, Color::Blue}, {C, ZPlus, Color::Blue}, {D, ZPlus, Color::Blue} };
+    const ::Mesh::TStaticMesh XYMinPlane  { {G, ZMin, Color::DarkBlue}, {E, ZMin, Color::DarkBlue}, {F, ZMin, Color::DarkBlue},
+                                            {G, ZMin, Color::DarkBlue}, {F, ZMin, Color::DarkBlue}, {H, ZMin, Color::DarkBlue} };
+    const ::Mesh::TStaticMesh XZPlusPlane { {C, YPlus, Color::Green}, {G, YPlus, Color::Green}, {D, YPlus, Color::Green},
+                                            {D, YPlus, Color::Green}, {G, YPlus, Color::Green}, {H, YPlus, Color::Green} };
+    const ::Mesh::TStaticMesh XZMinPlane  { {E, YMin, Color::DarkGreen}, {A, YMin, Color::DarkGreen}, {B, YMin, Color::DarkGreen},
+                                            {E, YMin, Color::DarkGreen}, {B, YMin, Color::DarkGreen}, {F, YMin, Color::DarkGreen} };
+    const ::Mesh::TStaticMesh YZPlusPlane { {B, XPlus, Color::Red}, {D, XPlus, Color::Red}, {F, XPlus, Color::Red},
+                                            {F, XPlus, Color::Red}, {D, XPlus, Color::Red}, {H, XPlus, Color::Red} };
+    const ::Mesh::TStaticMesh YZMinPlane  { {C, XMin, Color::DarkRed}, {A, XMin, Color::DarkRed}, {E, XMin, Color::DarkRed},
+                                            {C, XMin, Color::DarkRed}, {E, XMin, Color::DarkRed}, {G, XMin, Color::DarkRed} };
 }
 
 const ::Mesh::TStaticMesh Model::Box()

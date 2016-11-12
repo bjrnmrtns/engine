@@ -17,6 +17,8 @@ namespace Render {
                 glEnableVertexAttribArray(0);
                 glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(::Mesh::Vertex), (void *) (3 * sizeof(float)));
                 glEnableVertexAttribArray(1);
+                glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(::Mesh::Vertex), (void *) (6 * sizeof(float)));
+                glEnableVertexAttribArray(2);
             }
 
             void Source::BufferData(const ::Mesh::Vertex data[], int elements) {
@@ -40,7 +42,8 @@ namespace Render {
         static constexpr char *vss =
                 "#version 330 core\n"
                         "layout (location = 0) in vec3 position;\n"
-                        "layout (location = 1) in vec3 color;\n"
+                        "layout (location = 1) in vec3 normal;\n"
+                        "layout (location = 2) in vec3 color;\n"
                         "out vec3 ourColor;\n"
                         "uniform mat4 model;\n"
                         "uniform mat4 view;\n"

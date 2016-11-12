@@ -6,34 +6,21 @@
 
 namespace Mesh {
     struct Vertex {
-        glm::vec3 pos;
-        glm::vec3 col;
+        glm::vec3 p;
+        glm::vec3 n;
+        glm::vec3 c;
     };
     typedef std::vector<Vertex> TStaticMesh;
 }
 namespace UI {
     struct Vertex {
         Vertex(glm::vec2 pos, glm::vec3 col)
-        : pos(pos)
-        , col(col)
+        : p(pos)
+        , c(col)
         {
         }
-        glm::vec2 pos;
-        glm::vec3 col;
+        glm::vec2 p;
+        glm::vec3 c;
 };
-}
-
-namespace Text {
-    struct Vertex {
-        Vertex(glm::vec2 pos, glm::vec3 col, glm::vec2 texcoord)
-         : pos(pos)
-         , col(col)
-         , texcoord(texcoord)
-        {
-        }
-        glm::vec2 pos;
-        glm::vec3 col;
-        glm::vec2 texcoord;
-    };
 }
 #endif
