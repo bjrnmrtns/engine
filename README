@@ -4,3 +4,7 @@ libsdl2-dev
 libglm-dev
 cmake
 git
+
+[Design decisions]
+[[Coordinate System]]
+xy is the horizontal plane, z is the vertical.

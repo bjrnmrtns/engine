@@ -16,6 +16,8 @@ add_executable(demo
 	main.cpp
 	ui.cpp
 	ui.h
+	Model.cpp
+	Model.h
 	RenderTools.cpp
 	RenderTools.h
 	RenderMesh.cpp

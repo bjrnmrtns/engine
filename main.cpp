@@ -18,6 +18,7 @@
 #include "RenderMesh.h"
 #include "RenderUI.h"
 #include "VertexDefinitions.h"
+#include "Model.h"
 
 static const bool SCREEN_FULLSCREEN = true;
 static const int SCREEN_WIDTH  = 960;
@@ -25,7 +26,15 @@ static const int SCREEN_HEIGHT = 540;
 static SDL_Window *window = NULL;
 static SDL_GLContext maincontext;
 
-//TODO: Create Model.cpp to have creators/factories for cube / world / box
+namespace CameraConstants
+{
+    namespace TopDownView {
+        glm::vec3 Eye(0.0f, 1.0f, 0.0f); // Origin of camera
+        glm::vec3 Center(0.0f, 0.0f, 0.0f); // Point you are looking at
+        glm::vec3 Up(0.0f, 0.0f, -1.0f); // Up vector of camera
+    }
+}
+
 int main()
 {
 	SDL_Event event;
@@ -74,53 +83,9 @@ int main()
 	SDL_GetWindowSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-    float cubeData[] {
-        // Back face
-        -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // Bottom-left
-        0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f, // bottom-right
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f, // top-right
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f, // top-right
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f, // top-left
-        -0.5f, -0.5f, -0.5f,  0.0f, 0.0f, 0.0f, // bottom-left
-        // Front face
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f, // bottom-left
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, // top-right
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f, // bottom-right
-        0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f, // top-right
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f, // bottom-left
-        -0.5f,  0.5f,  0.5f,  0.0f, 1.0f, 1.0f, // top-left
-        // Left face
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f, // top-right
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, // bottom-left
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f, // top-left
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, // bottom-left
-        -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f, // top-right
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f, // bottom-right
-        // Right face
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f, // top-left
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f, // top-right
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, // bottom-right
-        0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, // bottom-right
-        0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f, // bottom-left
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f, // top-left
-        // Bottom face
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f, // top-right
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f, // bottom-left
-        0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 1.0f, // top-left
-        0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f, // bottom-left
-        -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 1.0f, // top-right
-        -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 1.0f, // bottom-right
-        // Top face
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f, // top-left
-        0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 1.0f, // top-right
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f, // bottom-right
-        0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 1.0f, // bottom-right
-        -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 1.0f, // bottom-left
-        -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 1.0f,  // top-left*/
-    };
-
-    Render::Mesh::Source cube;
-    cube.BufferData((::Mesh::Vertex*)cubeData, sizeof(cubeData) / sizeof(::Mesh::Vertex));
+    Render::Mesh::Source bigPlane;
+    const std::vector<::Mesh::Vertex> bigPlaneData = Model::XZPlusPlane();
+    bigPlane.BufferData((::Mesh::Vertex*)&bigPlaneData[0], bigPlaneData.size());
 
     Render::UI::Source ui;
     
@@ -149,10 +114,11 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // 3d Scene Rendering
-        glm::mat4 model = glm::rotate(glm::mat4(1.0f), current / 500.0f, glm::vec3(0.5f, 1.0f, 0.0f));
         glm::mat4 projection = glm::perspective(45.0f, width / (float)height, 0.1f, 100.0f);
-        meshRenderer.Draw(cube, model, camera.GetViewMatrix(), projection);
-        
+        glm::mat4 view = glm::lookAt(CameraConstants::TopDownView::Eye, CameraConstants::TopDownView::Center,
+                                     CameraConstants::TopDownView::Up);
+        meshRenderer.Draw(bigPlane, glm::mat4(1.0f), view, projection);
+
         // UI Rendering
         std::vector<UI::Vertex> uibuffer;
         generateSquare(uibuffer, uistate.mousex, uistate.mousey, 10, 10, glm::vec3(0.0f, 0.0f, 0.0f));
