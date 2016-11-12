@@ -76,6 +76,17 @@ const ::Mesh::TStaticMesh Model::Box()
     return box;
 }
 
+const ::Mesh::TStaticMesh Model::SimpleTank()
+{
+    ::Mesh::TStaticMesh lower(Move(Scale(Box(), glm::vec3(2.0f, 0.5f, 1.5f)), glm::vec3(0.0f, 0.5f, 0.0f)));
+    ::Mesh::TStaticMesh middle(Move(Scale(Box(), glm::vec3(1.0f, 0.5f, 1.0f)), glm::vec3(0.0f, 1.5f, 0.0f)));
+    ::Mesh::TStaticMesh gun(Move(Scale(Box(), glm::vec3(1.5f, 0.25f, 0.25f)), glm::vec3(2.5f, 1.5f, 0.0f)));
+    ::Mesh::TStaticMesh retVal(lower);
+    retVal.insert(retVal.end(), middle.begin(), middle.end());
+    retVal.insert(retVal.end(), gun.begin(), gun.end());
+    return retVal;
+}
+
 const ::Mesh::TStaticMesh Model::Scale(::Mesh::TStaticMesh mesh, const glm::vec3 factor)
 {
     for(auto& item: mesh)

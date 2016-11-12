@@ -136,16 +136,16 @@ int main()
 	int width, height;
 	SDL_GetWindowSize(window, &width, &height);
 	glViewport(0, 0, width, height);
-
-    Render::Mesh::Source box;
-    const ::Mesh::TStaticMesh boxData = Model::Scale(Model::Box(), glm::vec3(2.0f, 0.5f, 0.5f));
-    box.BufferData((::Mesh::Vertex*)&boxData[0], boxData.size());
+    
     glm::mat4 projectionM = glm::perspective(45.0f, width / (float)height, 0.1f, 100.0f);
-
 
     Render::Mesh::Source grid;
     const ::Mesh::TStaticMesh gridData = Model::Grid();
     grid.BufferData((::Mesh::Vertex*)&gridData[0], gridData.size());
+
+    Render::Mesh::Source tank;
+    const ::Mesh::TStaticMesh tankData = Model::SimpleTank();
+    tank.BufferData((::Mesh::Vertex*)&tankData[0], tankData.size());
 
     Render::UI::Source ui;
 
@@ -167,8 +167,8 @@ int main()
 
         // 3D rendering
         glm::mat4 modelM = glm::rotate(glm::mat4(1.0f), current / 500.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-        meshRenderer.Draw(box, glm::mat4(1.0f), rtsCamera.GetView(), projectionM);
         meshRenderer.Draw(grid, glm::mat4(1.0f), rtsCamera.GetView(), projectionM);
+        meshRenderer.Draw(tank, glm::mat4(1.0f), rtsCamera.GetView(), projectionM);
 
         // UI Rendering
         std::vector<UI::Vertex> uibuffer;
