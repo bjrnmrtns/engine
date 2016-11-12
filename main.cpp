@@ -8,11 +8,10 @@
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <array>
 
-#include "camera.h"
 #include "ui.h"
 #include "RenderMesh.h"
 #include "RenderUI.h"
@@ -91,22 +90,16 @@ int main()
 	SDL_GetWindowSize(window, &width, &height);
 	glViewport(0, 0, width, height);
 
-    Render::Mesh::Source bigPlane;
-    const ::Mesh::TStaticMesh bigPlaneData = Model::Box();
-    bigPlane.BufferData((::Mesh::Vertex*)&bigPlaneData[0], bigPlaneData.size());
+    Render::Mesh::Source box;
+    const ::Mesh::TStaticMesh boxData = Model::Scale(Model::Box(), glm::vec3(2.0f, 0.5f, 0.5f));
+    box.BufferData((::Mesh::Vertex*)&boxData[0], boxData.size());
     glm::mat4 projectionM = glm::perspective(45.0f, width / (float)height, 0.1f, 100.0f);
     glm::mat4 viewM = glm::lookAt(ViewConstants::TopView::Eye, ViewConstants::TopView::Center,
                                   ViewConstants::TopView::Up);
 
     Render::UI::Source ui;
     
-    Camera camera;
-    unsigned int lastTime = SDL_GetTicks();
-    bool w = false;
-    bool a = false;
-    bool s = false;
-    bool d = false;
-    
+    bool r = false;
     bool rtsmode = false;
 
     Render::Mesh::Renderer meshRenderer;
@@ -115,8 +108,6 @@ int main()
 	while(!quit)
 	{
         unsigned int current = SDL_GetTicks();
-        unsigned int deltams = current - lastTime;
-        lastTime = current;
 
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
@@ -126,7 +117,7 @@ int main()
 
         // 3D rendering
         glm::mat4 modelM = glm::rotate(glm::mat4(1.0f), current / 500.0f, glm::vec3(1.0f, 1.0f, 1.0f));
-        meshRenderer.Draw(bigPlane, modelM, viewM, projectionM);
+        meshRenderer.Draw(box, modelM, viewM, projectionM);
 
         // UI Rendering
         std::vector<UI::Vertex> uibuffer;
@@ -139,22 +130,6 @@ int main()
 		SDL_GL_SwapWindow(window);
         SDL_WarpMouseInWindow(window, width / 2.0f, height / 2.0f);
         SDL_SetRelativeMouseMode(SDL_TRUE);
-        if(w)
-        {
-            camera.ProcessKeyboard(FORWARD, deltams / 1000.0f);
-        }
-        if(s)
-        {
-            camera.ProcessKeyboard(BACKWARD, deltams / 1000.0f);
-        }
-        if(a)
-        {
-            camera.ProcessKeyboard(LEFT, deltams / 1000.0f);
-        }
-        if(d)
-        {
-            camera.ProcessKeyboard(RIGHT, deltams / 1000.0f);
-        }
 		while(SDL_PollEvent(&event))
 		{
             switch(event.type)
@@ -173,24 +148,9 @@ int main()
                             quit = true;
                             break;
                         }
-                        case SDLK_w:
+                        case SDLK_r:
                         {
-                            w = true;
-                            break;
-                        }
-                        case SDLK_s:
-                        {
-                            s = true;
-                            break;
-                        }
-                        case SDLK_a:
-                        {
-                            a = true;
-                            break;
-                        }
-                        case SDLK_d:
-                        {
-                            d = true;
+                            r = true;
                             break;
                         }
                         case SDLK_TAB:
@@ -205,24 +165,9 @@ int main()
                 {
                     switch(event.key.keysym.sym)
                     {
-                        case SDLK_w:
+                        case SDLK_r:
                         {
-                            w = false;
-                            break;
-                        }
-                        case SDLK_s:
-                        {
-                            s = false;
-                            break;
-                        }
-                        case SDLK_a:
-                        {
-                            a = false;
-                            break;
-                        }
-                        case SDLK_d:
-                        {
-                            d = false;
+                            r = false;
                             break;
                         }
                     }
@@ -232,7 +177,6 @@ int main()
                 {
                     if(!rtsmode)
                     {
-                        camera.ProcessMouseMovement(event.motion.xrel, event.motion.yrel);
                     }
                     else
                     {

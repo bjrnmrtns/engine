@@ -47,3 +47,12 @@ const ::Mesh::TStaticMesh Model::Box()
     box.insert(box.end(), YZMinPlane.begin(),  YZMinPlane.end());
     return box;
 }
+
+const ::Mesh::TStaticMesh Model::Scale(::Mesh::TStaticMesh mesh, const glm::vec3 factor)
+{
+    for(auto& item: mesh)
+    {
+        item.p *= factor;
+    }
+    return mesh;
+}
