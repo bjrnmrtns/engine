@@ -2,12 +2,14 @@
 
 namespace Model {
     namespace Color {
-        const glm::vec3       Red(1.0f, 0.0f, 0.0f);
-        const glm::vec3   DarkRed(0.5f, 0.0f, 0.0f);
-        const glm::vec3     Green(0.0f, 1.0f, 0.0f);
-        const glm::vec3 DarkGreen(0.0f, 0.5f, 0.0f);
-        const glm::vec3      Blue(0.0f, 0.0f, 1.0f);
-        const glm::vec3  DarkBlue(0.0f, 0.0f, 0.5f);
+        const glm::vec3          Red(1.0f, 0.0f, 0.0f);
+        const glm::vec3      DarkRed(0.5f, 0.0f, 0.0f);
+        const glm::vec3        Green(0.0f, 1.0f, 0.0f);
+        const glm::vec3    DarkGreen(0.0f, 0.5f, 0.0f);
+        const glm::vec3         Blue(0.0f, 0.0f, 1.0f);
+        const glm::vec3     DarkBlue(0.0f, 0.0f, 0.5f);
+        const glm::vec3         Grey(0.3f, 0.3f, 0.3f);
+        const glm::vec3  AlmostWhite(0.05f, 0.05f, 0.05f);
     }
     const glm::vec3 A(-1.0f, -1.0f,  1.0f);
     const glm::vec3 B( 1.0f, -1.0f,  1.0f);
@@ -37,6 +39,32 @@ namespace Model {
                                             {C, XMin, Color::DarkRed}, {E, XMin, Color::DarkRed}, {G, XMin, Color::DarkRed} };
 }
 
+const ::Mesh::TStaticMesh Model::Grid()
+{
+    ::Mesh::TStaticMesh grid;
+    ::Mesh::TStaticMesh oddCell  = ChangeColor(XZPlusPlane, Color::AlmostWhite);
+    ::Mesh::TStaticMesh evenCell = ChangeColor(XZPlusPlane, Color::Grey);
+    float xColorAdjustment = 0.007f;
+    float zColorAdjustment = 0.007f;
+    for(int x = 0; x < 100; x++)
+    {
+        for(int z = 0; z < 100; z++)
+        {
+            if((x + z) % 2 == 1)
+            {
+                ::Mesh::TStaticMesh element = Move(AdjustColor(oddCell, glm::vec3(xColorAdjustment * x, 0.0f, zColorAdjustment * z)), glm::vec3(-50 + x*2, -1.0f, -50 + z*2));
+                grid.insert(grid.end(), element.begin(), element.end());
+            }
+            else
+            {
+                ::Mesh::TStaticMesh element = Move(AdjustColor(evenCell, glm::vec3(xColorAdjustment * x, 0.0f, zColorAdjustment * z)), glm::vec3(-50 + x*2, -1.0f, -50 + z*2));
+                grid.insert(grid.end(), element.begin(), element.end());
+            }
+        }
+    }
+    return grid;
+}
+
 const ::Mesh::TStaticMesh Model::Box()
 {
     ::Mesh::TStaticMesh box(XYPlusPlane);
@@ -53,6 +81,33 @@ const ::Mesh::TStaticMesh Model::Scale(::Mesh::TStaticMesh mesh, const glm::vec3
     for(auto& item: mesh)
     {
         item.p *= factor;
+    }
+    return mesh;
+}
+
+const ::Mesh::TStaticMesh Model::Move(::Mesh::TStaticMesh mesh, const glm::vec3 translation)
+{
+    for(auto& item: mesh)
+    {
+        item.p += translation;
+    }
+    return mesh;
+}
+
+const ::Mesh::TStaticMesh Model::ChangeColor(::Mesh::TStaticMesh mesh, glm::vec3 color)
+{
+    for(auto& item: mesh)
+    {
+        item.c = color;
+    }
+    return mesh;
+}
+
+const ::Mesh::TStaticMesh Model::AdjustColor(::Mesh::TStaticMesh mesh, glm::vec3 color)
+{
+    for(auto& item: mesh)
+    {
+        item.c += color;
     }
     return mesh;
 }
