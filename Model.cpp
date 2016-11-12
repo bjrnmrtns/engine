@@ -52,12 +52,12 @@ const ::Mesh::TStaticMesh Model::Grid()
         {
             if((x + z) % 2 == 1)
             {
-                ::Mesh::TStaticMesh element = Move(AdjustColor(oddCell, glm::vec3(xColorAdjustment * x, 0.0f, zColorAdjustment * z)), glm::vec3(-50 + x*2, -1.0f, -50 + z*2));
+                ::Mesh::TStaticMesh element = Move(AdjustColor(oddCell, glm::vec3(xColorAdjustment * x, 0.0f, zColorAdjustment * z)), glm::vec3(-100 + x*2, -1.0f, -100 + z*2));
                 grid.insert(grid.end(), element.begin(), element.end());
             }
             else
             {
-                ::Mesh::TStaticMesh element = Move(AdjustColor(evenCell, glm::vec3(xColorAdjustment * x, 0.0f, zColorAdjustment * z)), glm::vec3(-50 + x*2, -1.0f, -50 + z*2));
+                ::Mesh::TStaticMesh element = Move(AdjustColor(evenCell, glm::vec3(xColorAdjustment * x, 0.0f, zColorAdjustment * z)), glm::vec3(-100 + x*2, -1.0f, -100 + z*2));
                 grid.insert(grid.end(), element.begin(), element.end());
             }
         }

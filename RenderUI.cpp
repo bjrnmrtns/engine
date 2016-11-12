@@ -37,7 +37,7 @@ namespace Render {
                 glBindVertexArray(0);
             }
 
-        static constexpr char *vss =
+        static char const* vss =
                 "#version 330 core\n"
                         "layout (location = 0) in vec2 position;\n"
                         "layout (location = 1) in vec3 color;\n"
@@ -49,7 +49,7 @@ namespace Render {
                         "  ourColor = color;\n"
                         "}\n";
 
-        static constexpr char *fss =
+        static char const* fss =
                 "#version 330 core\n"
                         "in vec3 ourColor;\n"
                         "out vec4 color;\n"

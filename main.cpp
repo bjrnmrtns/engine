@@ -136,7 +136,7 @@ int main()
 	int width, height;
 	SDL_GetWindowSize(window, &width, &height);
 	glViewport(0, 0, width, height);
-    
+
     glm::mat4 projectionM = glm::perspective(45.0f, width / (float)height, 0.1f, 100.0f);
 
     Render::Mesh::Source grid;
@@ -157,8 +157,6 @@ int main()
     UIState uistate(width / 2, height / 2);
 	while(!quit)
 	{
-        unsigned int current = SDL_GetTicks();
-
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
@@ -166,7 +164,6 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // 3D rendering
-        glm::mat4 modelM = glm::rotate(glm::mat4(1.0f), current / 500.0f, glm::vec3(1.0f, 1.0f, 1.0f));
         meshRenderer.Draw(grid, glm::mat4(1.0f), rtsCamera.GetView(), projectionM);
         meshRenderer.Draw(tank, glm::mat4(1.0f), rtsCamera.GetView(), projectionM);
 
