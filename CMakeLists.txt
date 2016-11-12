@@ -10,9 +10,6 @@ find_package(Freetype REQUIRED)
 
 add_executable(demo
 	thirdparty/glad/src/glad.c
-	camera.h
-	font.h
-	font.cpp
 	main.cpp
 	ui.cpp
 	ui.h
@@ -22,8 +19,6 @@ add_executable(demo
 	RenderTools.h
 	RenderMesh.cpp
 	RenderMesh.h
-	RenderText.cpp
-	RenderText.h
 	RenderUI.cpp
 	RenderUI.h
 	VertexDefinitions.h

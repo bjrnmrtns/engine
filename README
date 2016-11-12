@@ -7,4 +7,4 @@ git
 
 [Design decisions]
 [[Coordinate System]]
-xy is the horizontal plane, z is the vertical.
+We use the OpenGL coordinate system. Picture in docs/CoordinateSystem.jpg.
