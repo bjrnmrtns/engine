@@ -22,8 +22,7 @@ const glm::mat4 Camera::GetView()
     glm::mat4 arcBallRotation = ArcBallRotation(around, updown);
     glm::vec3 directiontopos(glm::vec4(0.0f, 0.0f, -1.0f, 1.0f) * arcBallRotation);
     glm::vec3 upvector(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) * arcBallRotation);
-    directiontopos = glm::normalize(directiontopos);
-    return glm::lookAt((directiontopos * glm::vec3(zoom, zoom, zoom)) + position, position, glm::normalize(upvector));
+    return glm::lookAt((glm::normalize(directiontopos) * glm::vec3(zoom, zoom, zoom)) + position, position, glm::normalize(upvector));
 }
 glm::vec3 Camera::CalculateDirectionToMoveIn(float around, float updown)
 {
@@ -33,6 +32,5 @@ glm::vec3 Camera::CalculateDirectionToMoveIn(float around, float updown)
 }
 glm::mat4 Camera::ArcBallRotation(float around, float updown)
 {
-
     return glm::rotate(glm::mat4(1.0f), updown, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), around, glm::vec3(0.0f, 1.0f, 0.0f));
 }
