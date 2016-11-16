@@ -52,6 +52,7 @@ namespace ViewConstants
 struct Keys
 {
     bool w = false, a = false, s = false, d = false; // camera movement
+    bool leftctrl = false;
 };
 
 void HandleKeysForCamera(Keys& keys, Camera& camera)
@@ -133,6 +134,8 @@ int main()
     const ::Mesh::TStaticMesh tankData = Model::SimpleTank();
     tank.BufferData((::Mesh::Vertex*)&tankData[0], tankData.size());
 
+    Render::UI::Source ui;
+
     Camera camera;
     Keys keys;
 
@@ -150,6 +153,14 @@ int main()
         // 3D rendering
         meshRenderer.Draw(grid, glm::mat4(1.0f), camera.GetView(), projectionM);
         meshRenderer.Draw(tank, glm::mat4(1.0f), camera.GetView(), projectionM);
+
+        // UI Rendering
+        std::vector<UI::Vertex> uibuffer;
+        generateSquare(uibuffer, uistate.mousex, uistate.mousey, 10, 10, glm::vec3(0.0f, 0.0f, 0.0f));
+        ui.BufferData(&uibuffer[0], uibuffer.size());
+        glm::mat4 projectionui = glm::ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f);
+        glDisable(GL_DEPTH_TEST);
+        uiRenderer.Draw(ui, projectionui);
         
 		SDL_GL_SwapWindow(window);
         SDL_WarpMouseInWindow(window, width / 2.0f, height / 2.0f);
@@ -193,6 +204,11 @@ int main()
                             keys.d = true;
                             break;
                         }
+                        case SDLK_LCTRL:
+                        {
+                            keys.leftctrl = true;
+                            break;
+                        }
                     }
                     break;
                 }
@@ -220,14 +236,23 @@ int main()
                             keys.d = false;
                             break;
                         }
+                        case SDLK_LCTRL:
+                        {
+                            keys.leftctrl = false;
+                            break;
+                        }
                     }
                     break;
                 }
                 case SDL_MOUSEMOTION:
                 {
-                    uistate.mousex = std::max(0, std::min(width, uistate.mousex + event.motion.xrel));
-                    uistate.mousey = std::max(0, std::min(height, uistate.mousey + event.motion.yrel));
-                    camera.MouseMove(event.motion.xrel / 100.0f, event.motion.yrel / 400.0f);
+                    if(!keys.leftctrl) {
+                        uistate.mousex = std::max(0, std::min(width, uistate.mousex + event.motion.xrel));
+                        uistate.mousey = std::max(0, std::min(height, uistate.mousey + event.motion.yrel));
+                    }
+                    else {
+                        camera.MouseMove(event.motion.xrel / 100.0f, event.motion.yrel / 400.0f);
+                    }
                     break;
                 }
                 case SDL_MOUSEBUTTONDOWN:
