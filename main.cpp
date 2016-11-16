@@ -10,6 +10,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/constants.hpp>
 
 #include <array>
 
@@ -56,16 +57,38 @@ struct Keys
 class RtsCamera
 {
 public:
-    glm::vec3 pos = ViewConstants::TopViewWithAngle::Eye;
-    glm::vec3 lookingDirection = ViewConstants::TopViewWithAngle::Center - ViewConstants::TopViewWithAngle::Eye;
+    static constexpr float pi = glm::pi<float>();
+    static constexpr float pi_2 = pi / 2.0f;
+    glm::vec3 pos = ViewConstants::TopView::Eye;
+    glm::vec3 lookingDirection = ViewConstants::TopView::Center - ViewConstants::TopView::Eye;
+    float updown = 0.0f;
+    float around = 0.0f;
     void Move(glm::vec3 value)
     {
         pos += value;
     }
+    void MouseMove(float around_diff, float updown_diff)
+    {
+        updown -= updown_diff;
+        around += around_diff;
+        updown = std::min(pi_2 - 0.1f, std::max(-pi_2 + 0.1f, updown));
+    }
     glm::mat4 GetView()
     {
-        return glm::lookAt(pos, pos + lookingDirection, ViewConstants::TopViewWithAngle::Up);
+        // The arcball rotation consists of two parts. The last one does the rotation on the y-axis so around the center on xz plane,
+        // the second one is about the updown around the x-axis.
+        glm::mat4 arcBallRotation = glm::rotate(glm::mat4(1.0f), updown, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), around, glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::vec3 directiontopos(glm::vec4(0.0f, 0.0f, -1.0f, 1.0f) * arcBallRotation);
+        glm::vec3 upvector(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) * arcBallRotation);
+        return glm::lookAt(glm::normalize(directiontopos) * glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::normalize(upvector));
     }
+private:
+    static bool AlmostEquals(float vala, float valb)
+    {
+        static float EPSILON = 0.0005;
+        return vala < (valb + EPSILON) && vala > (valb - EPSILON);
+    }
+
 };
 
 void HandleKeysForCamera(Keys& keys, RtsCamera& camera)
@@ -147,8 +170,6 @@ int main()
     const ::Mesh::TStaticMesh tankData = Model::SimpleTank();
     tank.BufferData((::Mesh::Vertex*)&tankData[0], tankData.size());
 
-    Render::UI::Source ui;
-
     RtsCamera rtsCamera;
     Keys keys;
 
@@ -166,14 +187,6 @@ int main()
         // 3D rendering
         meshRenderer.Draw(grid, glm::mat4(1.0f), rtsCamera.GetView(), projectionM);
         meshRenderer.Draw(tank, glm::mat4(1.0f), rtsCamera.GetView(), projectionM);
-
-        // UI Rendering
-        std::vector<UI::Vertex> uibuffer;
-        generateSquare(uibuffer, uistate.mousex, uistate.mousey, 10, 10, glm::vec3(0.0f, 0.0f, 0.0f));
-        ui.BufferData(&uibuffer[0], uibuffer.size());
-        glm::mat4 projectionui = glm::ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f);
-        glDisable(GL_DEPTH_TEST);
-        uiRenderer.Draw(ui, projectionui);
         
 		SDL_GL_SwapWindow(window);
         SDL_WarpMouseInWindow(window, width / 2.0f, height / 2.0f);
@@ -251,6 +264,7 @@ int main()
                 {
                     uistate.mousex = std::max(0, std::min(width, uistate.mousex + event.motion.xrel));
                     uistate.mousey = std::max(0, std::min(height, uistate.mousey + event.motion.yrel));
+                    rtsCamera.MouseMove(event.motion.xrel / 100.0f, event.motion.yrel / 400.0f);
                     break;
                 }
                 case SDL_MOUSEBUTTONDOWN:
