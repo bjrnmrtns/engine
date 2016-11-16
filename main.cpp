@@ -10,7 +10,6 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/constants.hpp>
 
 #include <array>
 
@@ -18,6 +17,7 @@
 #include "RenderMesh.h"
 #include "RenderUI.h"
 #include "Model.h"
+#include "Camera.h"
 
 static const bool SCREEN_FULLSCREEN = false;
 static const int SCREEN_WIDTH  = 960;
@@ -54,61 +54,24 @@ struct Keys
     bool w = false, a = false, s = false, d = false; // camera movement
 };
 
-class RtsCamera
+void HandleKeysForCamera(Keys& keys, Camera& camera)
 {
-public:
-    static constexpr float pi = glm::pi<float>();
-    static constexpr float pi_2 = pi / 2.0f;
-    glm::vec3 pos = ViewConstants::TopView::Eye;
-    glm::vec3 lookingDirection = ViewConstants::TopView::Center - ViewConstants::TopView::Eye;
-    float updown = 0.0f;
-    float around = 0.0f;
-    void Move(glm::vec3 value)
-    {
-        pos += value;
-    }
-    void MouseMove(float around_diff, float updown_diff)
-    {
-        updown -= updown_diff;
-        around += around_diff;
-        updown = std::min(pi_2 - 0.1f, std::max(-pi_2 + 0.1f, updown));
-    }
-    glm::mat4 GetView()
-    {
-        // The arcball rotation consists of two parts. The last one does the rotation on the y-axis so around the center on xz plane,
-        // the second one is about the updown around the x-axis.
-        glm::mat4 arcBallRotation = glm::rotate(glm::mat4(1.0f), updown, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(glm::mat4(1.0f), around, glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::vec3 directiontopos(glm::vec4(0.0f, 0.0f, -1.0f, 1.0f) * arcBallRotation);
-        glm::vec3 upvector(glm::vec4(0.0f, 1.0f, 0.0f, 1.0f) * arcBallRotation);
-        return glm::lookAt(glm::normalize(directiontopos) * glm::vec3(50.0f, 50.0f, 50.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::normalize(upvector));
-    }
-private:
-    static bool AlmostEquals(float vala, float valb)
-    {
-        static float EPSILON = 0.0005;
-        return vala < (valb + EPSILON) && vala > (valb - EPSILON);
-    }
-
-};
-
-void HandleKeysForCamera(Keys& keys, RtsCamera& camera)
-{
-    const float move = 0.5f;
+    float movespeed = 0.5f;
     if(keys.w)
     {
-        camera.Move(glm::vec3(0.0f, 0.0f, move));
+        camera.Move(movespeed, 0.0f);
     }
     if(keys.s)
     {
-        camera.Move(glm::vec3(0.0f, 0.0f, -move));
+        camera.Move(-movespeed, 0.0f);
     }
     if(keys.a)
     {
-        camera.Move(glm::vec3(move, 0.0f, 0.0f));
+        camera.Move(0.0f, movespeed);
     }
     if(keys.d)
     {
-        camera.Move(glm::vec3(-move, 0.0f, 0.0f));
+        camera.Move(0.0f, -movespeed);
     }
 }
 
@@ -170,7 +133,7 @@ int main()
     const ::Mesh::TStaticMesh tankData = Model::SimpleTank();
     tank.BufferData((::Mesh::Vertex*)&tankData[0], tankData.size());
 
-    RtsCamera rtsCamera;
+    Camera camera;
     Keys keys;
 
     Render::Mesh::Renderer meshRenderer;
@@ -185,13 +148,13 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // 3D rendering
-        meshRenderer.Draw(grid, glm::mat4(1.0f), rtsCamera.GetView(), projectionM);
-        meshRenderer.Draw(tank, glm::mat4(1.0f), rtsCamera.GetView(), projectionM);
+        meshRenderer.Draw(grid, glm::mat4(1.0f), camera.GetView(), projectionM);
+        meshRenderer.Draw(tank, glm::mat4(1.0f), camera.GetView(), projectionM);
         
 		SDL_GL_SwapWindow(window);
         SDL_WarpMouseInWindow(window, width / 2.0f, height / 2.0f);
         SDL_SetRelativeMouseMode(SDL_TRUE);
-        HandleKeysForCamera(keys, rtsCamera);
+        HandleKeysForCamera(keys, camera);
 		while(SDL_PollEvent(&event))
 		{
             switch(event.type)
@@ -264,7 +227,7 @@ int main()
                 {
                     uistate.mousex = std::max(0, std::min(width, uistate.mousex + event.motion.xrel));
                     uistate.mousey = std::max(0, std::min(height, uistate.mousey + event.motion.yrel));
-                    rtsCamera.MouseMove(event.motion.xrel / 100.0f, event.motion.yrel / 400.0f);
+                    camera.MouseMove(event.motion.xrel / 100.0f, event.motion.yrel / 400.0f);
                     break;
                 }
                 case SDL_MOUSEBUTTONDOWN:

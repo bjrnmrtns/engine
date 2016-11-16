@@ -15,14 +15,15 @@ add_executable(demo
 	ui.h
 	Model.cpp
 	Model.h
+	Camera.cpp
+	Camera.h
 	RenderTools.cpp
 	RenderTools.h
 	RenderMesh.cpp
 	RenderMesh.h
 	RenderUI.cpp
 	RenderUI.h
-	VertexDefinitions.h
-)
+	VertexDefinitions.h)
 
 target_include_directories(demo PUBLIC
 	${GLM_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS} thirdparty/glad/include
