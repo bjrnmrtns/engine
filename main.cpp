@@ -10,6 +10,7 @@
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/ext.hpp>
 
 #include <array>
 
@@ -123,8 +124,11 @@ int main()
 	int width, height;
 	SDL_GetWindowSize(window, &width, &height);
 	glViewport(0, 0, width, height);
+    glm::vec4 viewport(0, 0, width, height);
 
-    glm::mat4 projectionM = glm::perspective(45.0f, width / (float)height, 0.1f, 100.0f);
+    float near = 0.1f;
+    float far = 1000.0f;
+    glm::mat4 projectionM = glm::perspective(45.0f, width / (float)height, near, far);
 
     Render::Mesh::Source grid;
     const ::Mesh::TStaticMesh gridData = Model::Grid();
@@ -258,6 +262,19 @@ int main()
                 case SDL_MOUSEBUTTONDOWN:
                 {
                     if (event.button.button == 1) uistate.mousedown = true;
+
+                    //TODO: mouse picking now right. Store in function.
+                    glm::vec3 p0 = glm::unProject(glm::vec3(uistate.mousex, height - uistate.mousey,  -1.0f), camera.GetView(), projectionM, glm::vec4(0.0f, 0.0f, width, height));
+                    glm::vec3 p1 = glm::unProject(glm::vec3(uistate.mousex, height - uistate.mousey, 1.0f), camera.GetView(), projectionM, glm::vec4(0.0f, 0.0f, width, height));
+                    glm::vec3 d = p1 - p0;
+                    std::cout << uistate.mousex << " " << uistate.mousey << std::endl;
+                    std::cout << glm::to_string(p0) << std::endl;
+                    std::cout << glm::to_string(p1) << std::endl;
+                    std::cout << glm::to_string(d) << std::endl;
+                    float t = -p0.y / d.y;
+                    glm::vec3 hit(p0.x + (d.x*t), 0, p0.z + (d.z*t));
+                    std::cout << glm::to_string(hit) << std::endl;
+
                     break;
                 }
                 case SDL_MOUSEBUTTONUP:
