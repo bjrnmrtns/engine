@@ -11,8 +11,8 @@ find_package(Freetype REQUIRED)
 add_executable(demo
 	thirdparty/glad/src/glad.c
 	main.cpp
-	ui.cpp
-	ui.h
+	UiElements.cpp
+	UiElements.h
 	Model.cpp
 	Model.h
 	Camera.cpp

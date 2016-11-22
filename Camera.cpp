@@ -13,7 +13,7 @@ void Camera::Move(float forward, float left)
 }
 void Camera::MouseMove(float around_diff, float updown_diff)
 {
-    updown -= updown_diff;
+    updown += updown_diff;
     around += around_diff;
     updown = std::min(pi_2 - 0.1f, std::max(-pi_2 + 0.1f, updown));
 }

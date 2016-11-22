@@ -14,7 +14,7 @@
 
 #include <array>
 
-#include "ui.h"
+#include "UiElements.h"
 #include "RenderMesh.h"
 #include "RenderUI.h"
 #include "Model.h"
@@ -26,6 +26,8 @@ static const int SCREEN_HEIGHT = 540;
 static SDL_Window *window = NULL;
 static SDL_GLContext maincontext;
 
+// These might nog be used, but sometimes helpfull to get the camera out of the equation and
+// only use glm::lookAt
 namespace ViewConstants
 {
     namespace TopViewWithAngle {
@@ -50,6 +52,15 @@ namespace ViewConstants
     }
 }
 
+// TODO: Should be moved to seperate file
+static glm::vec3 MousePick(const glm::mat4& view, glm::mat4& proj, int width, int height, int mousex, int mousey)
+{
+    glm::vec3 p0 = glm::unProject(glm::vec3(mousex, mousey, -1.0f), view, proj, glm::vec4(0.0f, 0.0f, width, height));
+    glm::vec3 p1 = glm::unProject(glm::vec3(mousex, mousey, 1.0f), view, proj, glm::vec4(0.0f, 0.0f, width, height));
+    glm::vec3 d = p1 - p0;
+    float t = -p0.y / d.y;
+    return glm::vec3(p0.x + (d.x * t), 0, p0.z + (d.z * t));
+}
 struct Keys
 {
     bool w = false, a = false, s = false, d = false; // camera movement
@@ -124,7 +135,6 @@ int main()
 	int width, height;
 	SDL_GetWindowSize(window, &width, &height);
 	glViewport(0, 0, width, height);
-    glm::vec4 viewport(0, 0, width, height);
 
     float near = 0.1f;
     float far = 1000.0f;
@@ -145,7 +155,8 @@ int main()
 
     Render::Mesh::Renderer meshRenderer;
     Render::UI::Renderer uiRenderer;
-    UIState uistate(width / 2, height / 2);
+    int mousex = width / 2;
+    int mousey = height / 2;
 	while(!quit)
 	{
         glEnable(GL_DEPTH_TEST);
@@ -160,9 +171,9 @@ int main()
 
         // UI Rendering
         std::vector<UI::Vertex> uibuffer;
-        generateSquare(uibuffer, uistate.mousex, uistate.mousey, 10, 10, glm::vec3(0.0f, 0.0f, 0.0f));
+        generateSquare(uibuffer, mousex, mousey, 3, 3, glm::vec3(0.0f, 0.0f, 0.0f));
         ui.BufferData(&uibuffer[0], uibuffer.size());
-        glm::mat4 projectionui = glm::ortho(0.0f, (float)width, (float)height, 0.0f, -1.0f, 1.0f);
+        glm::mat4 projectionui = glm::ortho(0.0f, (float)width, 0.0f, float(height), -1.0f, 1.0f);
         glDisable(GL_DEPTH_TEST);
         uiRenderer.Draw(ui, projectionui);
         
@@ -251,35 +262,22 @@ int main()
                 case SDL_MOUSEMOTION:
                 {
                     if(!keys.leftctrl) {
-                        uistate.mousex = std::max(0, std::min(width, uistate.mousex + event.motion.xrel));
-                        uistate.mousey = std::max(0, std::min(height, uistate.mousey + event.motion.yrel));
+                        mousex = std::max(0, std::min(width, mousex + event.motion.xrel));
+                        mousey = std::max(0, std::min(height, mousey - event.motion.yrel));
                     }
                     else {
-                        camera.MouseMove(event.motion.xrel / 100.0f, event.motion.yrel / 400.0f);
+                        camera.MouseMove(event.motion.xrel / 100.0f, -event.motion.yrel / 400.0f);
                     }
                     break;
                 }
                 case SDL_MOUSEBUTTONDOWN:
                 {
-                    if (event.button.button == 1) uistate.mousedown = true;
-
-                    //TODO: mouse picking now right. Store in function.
-                    glm::vec3 p0 = glm::unProject(glm::vec3(uistate.mousex, height - uistate.mousey,  -1.0f), camera.GetView(), projectionM, glm::vec4(0.0f, 0.0f, width, height));
-                    glm::vec3 p1 = glm::unProject(glm::vec3(uistate.mousex, height - uistate.mousey, 1.0f), camera.GetView(), projectionM, glm::vec4(0.0f, 0.0f, width, height));
-                    glm::vec3 d = p1 - p0;
-                    std::cout << uistate.mousex << " " << uistate.mousey << std::endl;
-                    std::cout << glm::to_string(p0) << std::endl;
-                    std::cout << glm::to_string(p1) << std::endl;
-                    std::cout << glm::to_string(d) << std::endl;
-                    float t = -p0.y / d.y;
-                    glm::vec3 hit(p0.x + (d.x*t), 0, p0.z + (d.z*t));
-                    std::cout << glm::to_string(hit) << std::endl;
-
+                    std::cout << mousex << " " << mousey << std::endl;
+                    std::cout << glm::to_string(MousePick(camera.GetView(), projectionM, width, height, mousex, mousey)) << std::endl;
                     break;
                 }
                 case SDL_MOUSEBUTTONUP:
                 {
-                    if (event.button.button == 1) uistate.mousedown = false;
                     break;
                 }
             }
