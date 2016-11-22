@@ -1,8 +1,6 @@
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <algorithm>
-
 #include "Camera.h"
+
+#include <algorithm>
 
 void Camera::Move(float forward, float left)
 {

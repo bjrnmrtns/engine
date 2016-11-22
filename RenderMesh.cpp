@@ -1,10 +1,9 @@
+#include "RenderMesh.h"
+#include "RenderTools.h"
+
 #include <glad/glad.h>
-#include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "VertexDefinitions.h"
-#include "RenderTools.h"
-#include "RenderMesh.h"
 
 namespace Render {
     namespace Mesh {

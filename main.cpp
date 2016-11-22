@@ -26,32 +26,6 @@ static const int SCREEN_HEIGHT = 540;
 static SDL_Window *window = NULL;
 static SDL_GLContext maincontext;
 
-// These might nog be used, but sometimes helpfull to get the camera out of the equation and
-// only use glm::lookAt
-namespace ViewConstants
-{
-    namespace TopViewWithAngle {
-        glm::vec3 Eye(-20.0f, 20.0f, -20.0f); // Origin of camera
-        glm::vec3 Center(0.0f, 0.0f, 0.0f); // Point you are looking at
-        glm::vec3 Up(0.0f, 1.0f, 0.0f); // Up vector of camera
-    }
-    namespace TopView {
-        glm::vec3 Eye(0.0f, 20.0f, 0.0f); // Origin of camera
-        glm::vec3 Center(0.0f, 0.0f, 0.0f); // Point you are looking at
-        glm::vec3 Up(0.0f, 0.0f, 1.0f); // Up vector of camera
-    }
-    namespace FrontView {
-        glm::vec3 Eye(0.0f, 0.0f, 30.0f); // Origin of camera
-        glm::vec3 Center(0.0f, 0.0f, 0.0f); // Point you are looking at
-        glm::vec3 Up(0.0f, 1.0f, 0.0f); // Up vector of camera
-    }
-    namespace SideView {
-        glm::vec3 Eye(30.0f, 0.0f, 0.0f); // Origin of camera
-        glm::vec3 Center(0.0f, 0.0f, 0.0f); // Point you are looking at
-        glm::vec3 Up(0.0f, 1.0f, 0.0f); // Up vector of camera
-    }
-}
-
 // TODO: Should be moved to seperate file
 static glm::vec3 MousePick(const glm::mat4& view, glm::mat4& proj, int width, int height, int mousex, int mousey)
 {

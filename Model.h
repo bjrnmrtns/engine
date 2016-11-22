@@ -1,8 +1,8 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include <vector>
 #include "VertexDefinitions.h"
+#include <vector>
 
 namespace Model
 {
