@@ -62,6 +62,16 @@ void HandleKeysForCamera(Keys& keys, Camera& camera)
     }
 }
 
+struct Selection
+{
+    Selection() : state(NotSelecting) {};
+    enum State { NotSelecting, Selecting, StopSelecting };
+    State state;
+    glm::vec2 lowerleft;
+    glm::vec2 upperright;
+};
+
+//TODO: Cleanup selection code, and maybe all control code.
 int main()
 {
 	SDL_Event event;
@@ -131,6 +141,7 @@ int main()
     Render::UI::Renderer uiRenderer;
     int mousex = width / 2;
     int mousey = height / 2;
+    Selection selection;
 	while(!quit)
 	{
         glEnable(GL_DEPTH_TEST);
@@ -143,9 +154,21 @@ int main()
         meshRenderer.Draw(grid, glm::mat4(1.0f), camera.GetView(), projectionM);
         meshRenderer.Draw(tank, glm::mat4(1.0f), camera.GetView(), projectionM);
 
+        if(selection.state == Selection::State::StopSelecting)
+        {
+            selection.state = Selection::State::NotSelecting;
+        }
         // UI Rendering
         std::vector<UI::Vertex> uibuffer;
-        generateSquare(uibuffer, mousex, mousey, 3, 3, glm::vec3(0.0f, 0.0f, 0.0f));
+        if(selection.state == Selection::State::Selecting)
+        {
+            uibuffer = SelectionRectangle(selection.lowerleft.x, selection.lowerleft.y, mousex -
+                    selection.lowerleft.x, mousey - selection.lowerleft.y);
+        }
+        else
+        {
+            uibuffer = generateSquare(mousex - 3, mousey - 3, 6, 6);
+        }
         ui.BufferData(&uibuffer[0], uibuffer.size());
         glm::mat4 projectionui = glm::ortho(0.0f, (float)width, 0.0f, float(height), -1.0f, 1.0f);
         glDisable(GL_DEPTH_TEST);
@@ -246,12 +269,24 @@ int main()
                 }
                 case SDL_MOUSEBUTTONDOWN:
                 {
-                    std::cout << mousex << " " << mousey << std::endl;
-                    std::cout << glm::to_string(MousePick(camera.GetView(), projectionM, width, height, mousex, mousey)) << std::endl;
+                    if (selection.state == Selection::State::NotSelecting)
+                    {
+                        selection.state = Selection::State::Selecting;
+                        selection.lowerleft = glm::vec2(mousex, mousey);
+                        std::cout << mousex << " " << mousey << std::endl;
+                        std::cout << glm::to_string(MousePick(camera.GetView(), projectionM, width, height, mousex, mousey)) << std::endl;
+                    }
                     break;
                 }
                 case SDL_MOUSEBUTTONUP:
                 {
+                    if (selection.state == Selection::State::Selecting)
+                    {
+                        selection.state = Selection::State::StopSelecting;
+                        selection.upperright = glm::vec2(mousex, mousey);
+                        std::cout << mousex << " " << mousey << std::endl;
+                        std::cout << glm::to_string(MousePick(camera.GetView(), projectionM, width, height, mousex, mousey)) << std::endl;
+                    }
                     break;
                 }
             }

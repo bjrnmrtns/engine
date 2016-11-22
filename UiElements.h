@@ -4,6 +4,7 @@
 #include "VertexDefinitions.h"
 #include <vector>
 
-void generateSquare(std::vector<UI::Vertex>& buffer, int x, int y, int w, int h, glm::vec3 color);
+std::vector<UI::Vertex> generateSquare(int x, int y, int w, int h);
+std::vector<UI::Vertex> SelectionRectangle(int xlowerleft, int ylowerleft, int w, int h);
 
 #endif
