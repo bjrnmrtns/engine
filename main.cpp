@@ -71,7 +71,6 @@ struct Selection
     glm::vec2 clickb;
 };
 
-//TODO: Cleanup selection code, and maybe all control code.
 int main()
 {
 	SDL_Event event;
@@ -162,11 +161,11 @@ int main()
         std::vector<UI::Vertex> uibuffer;
         if(selection.state == Selection::State::BeginSelection)
         {
-            uibuffer = SelectionRectangle(selection.clicka, glm::vec2(mousex, mousey));
+            uibuffer = SelectionRectangle(selection.clicka, glm::vec2(mousex, mousey), glm::vec3(0.0f, 0.6f, 0.0f));
         }
         else
         {
-            uibuffer = generateSquare(mousex - 3, mousey - 3, 6, 6);
+            uibuffer = generateSquare(mousex - 3, mousey - 3, 6, 6, glm::vec3(0.0f, 0.0f, 0.0f));
         }
         ui.BufferData(&uibuffer[0], uibuffer.size());
         glm::mat4 projectionui = glm::ortho(0.0f, (float)width, 0.0f, float(height), -1.0f, 1.0f);
