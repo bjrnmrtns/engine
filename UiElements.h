@@ -5,6 +5,6 @@
 #include <vector>
 
 std::vector<UI::Vertex> generateSquare(int x, int y, int w, int h);
-std::vector<UI::Vertex> SelectionRectangle(int xlowerleft, int ylowerleft, int w, int h);
+std::vector<UI::Vertex> SelectionRectangle(glm::vec2 pointA, glm::vec2 pointB);
 
 #endif

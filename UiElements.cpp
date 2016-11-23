@@ -12,11 +12,15 @@ std::vector<UI::Vertex> generateSquare(int x, int y, int w, int h)
     return buffer;
 }
 
-std::vector<UI::Vertex> SelectionRectangle(int xlowerleft, int ylowerleft, int w, int h)
+std::vector<UI::Vertex> SelectionRectangle(glm::vec2 pointA, glm::vec2 pointB)
 {
+    int xlowerleft = std::min(pointA.x, pointB.x);
+    int ylowerleft = std::min(pointA.y, pointB.y);
+    int w = std::abs(pointA.x - pointB.x);
+    int h = std::abs(pointA.y - pointB.y);
     int thickness = 2;
     std::vector<UI::Vertex> leftbar(generateSquare(xlowerleft, ylowerleft, thickness, h));
-    std::vector<UI::Vertex> rightbar(generateSquare(xlowerleft + w, ylowerleft, thickness, h));
+    std::vector<UI::Vertex> rightbar(generateSquare(xlowerleft + w, ylowerleft, thickness, h + thickness));
     std::vector<UI::Vertex> lowbar(generateSquare(xlowerleft, ylowerleft, w, thickness));
     std::vector<UI::Vertex> highbar(generateSquare(xlowerleft, ylowerleft + h, w, thickness));
     std::vector<UI::Vertex> buffer(leftbar);

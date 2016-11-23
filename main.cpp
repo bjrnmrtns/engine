@@ -65,10 +65,10 @@ void HandleKeysForCamera(Keys& keys, Camera& camera)
 struct Selection
 {
     Selection() : state(NotSelecting) {};
-    enum State { NotSelecting, Selecting, StopSelecting };
+    enum State { NotSelecting, BeginSelection, EndSelection };
     State state;
-    glm::vec2 lowerleft;
-    glm::vec2 upperright;
+    glm::vec2 clicka;
+    glm::vec2 clickb;
 };
 
 //TODO: Cleanup selection code, and maybe all control code.
@@ -154,16 +154,15 @@ int main()
         meshRenderer.Draw(grid, glm::mat4(1.0f), camera.GetView(), projectionM);
         meshRenderer.Draw(tank, glm::mat4(1.0f), camera.GetView(), projectionM);
 
-        if(selection.state == Selection::State::StopSelecting)
+        if(selection.state == Selection::State::EndSelection)
         {
             selection.state = Selection::State::NotSelecting;
         }
         // UI Rendering
         std::vector<UI::Vertex> uibuffer;
-        if(selection.state == Selection::State::Selecting)
+        if(selection.state == Selection::State::BeginSelection)
         {
-            uibuffer = SelectionRectangle(selection.lowerleft.x, selection.lowerleft.y, mousex -
-                    selection.lowerleft.x, mousey - selection.lowerleft.y);
+            uibuffer = SelectionRectangle(selection.clicka, glm::vec2(mousex, mousey));
         }
         else
         {
@@ -271,8 +270,8 @@ int main()
                 {
                     if (selection.state == Selection::State::NotSelecting)
                     {
-                        selection.state = Selection::State::Selecting;
-                        selection.lowerleft = glm::vec2(mousex, mousey);
+                        selection.state = Selection::State::BeginSelection;
+                        selection.clicka = glm::vec2(mousex, mousey);
                         std::cout << mousex << " " << mousey << std::endl;
                         std::cout << glm::to_string(MousePick(camera.GetView(), projectionM, width, height, mousex, mousey)) << std::endl;
                     }
@@ -280,10 +279,10 @@ int main()
                 }
                 case SDL_MOUSEBUTTONUP:
                 {
-                    if (selection.state == Selection::State::Selecting)
+                    if (selection.state == Selection::State::BeginSelection)
                     {
-                        selection.state = Selection::State::StopSelecting;
-                        selection.upperright = glm::vec2(mousex, mousey);
+                        selection.state = Selection::State::EndSelection;
+                        selection.clickb = glm::vec2(mousex, mousey);
                         std::cout << mousex << " " << mousey << std::endl;
                         std::cout << glm::to_string(MousePick(camera.GetView(), projectionM, width, height, mousex, mousey)) << std::endl;
                     }
