@@ -27,13 +27,21 @@ static SDL_Window *window = NULL;
 static SDL_GLContext maincontext;
 
 // TODO: Should be moved to seperate file
-static glm::vec3 MousePick(const glm::mat4& view, glm::mat4& proj, int width, int height, int mousex, int mousey)
+static bool MousePickTo3d(const glm::mat4& view, glm::mat4& proj, int width, int height, int mousex, int mousey, glm::vec3& outValue)
 {
     glm::vec3 p0 = glm::unProject(glm::vec3(mousex, mousey, -1.0f), view, proj, glm::vec4(0.0f, 0.0f, width, height));
     glm::vec3 p1 = glm::unProject(glm::vec3(mousex, mousey, 1.0f), view, proj, glm::vec4(0.0f, 0.0f, width, height));
     glm::vec3 d = p1 - p0;
     float t = -p0.y / d.y;
-    return glm::vec3(p0.x + (d.x * t), 0, p0.z + (d.z * t));
+    if (t > 0.0)
+    {
+        outValue = glm::vec3(p0.x + (d.x * t), 0, p0.z + (d.z * t));
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 struct Keys
 {
@@ -69,6 +77,9 @@ struct Selection
     State state;
     glm::vec2 clicka;
     glm::vec2 clickb;
+    glm::vec3 clicka3d;
+    glm::vec3 clickb3d;
+    bool valid;
 };
 
 int main()
@@ -270,9 +281,12 @@ int main()
                     if (selection.state == Selection::State::NotSelecting)
                     {
                         selection.state = Selection::State::BeginSelection;
-                        selection.clicka = glm::vec2(mousex, mousey);
-                        std::cout << mousex << " " << mousey << std::endl;
-                        std::cout << glm::to_string(MousePick(camera.GetView(), projectionM, width, height, mousex, mousey)) << std::endl;
+                        if(MousePickTo3d(camera.GetView(), projectionM, width, height, mousex, mousey, selection.clicka3d))
+                        {
+                            selection.clicka = glm::vec2(mousex, mousey);
+                            selection.valid = true;
+                        }
+                        selection.valid = false;
                     }
                     break;
                 }
@@ -281,9 +295,12 @@ int main()
                     if (selection.state == Selection::State::BeginSelection)
                     {
                         selection.state = Selection::State::EndSelection;
-                        selection.clickb = glm::vec2(mousex, mousey);
-                        std::cout << mousex << " " << mousey << std::endl;
-                        std::cout << glm::to_string(MousePick(camera.GetView(), projectionM, width, height, mousex, mousey)) << std::endl;
+                        if(MousePickTo3d(camera.GetView(), projectionM, width, height, mousex, mousey, selection.clickb3d))
+                        {
+                            selection.clickb = glm::vec2(mousex, mousey);
+                            selection.valid = true;
+                        }
+                        selection.valid = false;
                     }
                     break;
                 }
