@@ -47,10 +47,11 @@ namespace Render {
                         "uniform mat4 model;\n"
                         "uniform mat4 view;\n"
                         "uniform mat4 projection;\n"
+                        "uniform float selectioncolor;\n"
                         "void main()\n"
                         "{\n"
                         "  gl_Position = projection * view * model * vec4(position, 1.0f);\n"
-                        "  ourColor = color;\n"
+                        "  ourColor = color * selectioncolor;\n"
                         "}\n";
 
         static char const *fss =
@@ -66,7 +67,8 @@ namespace Render {
                     : shaderProgramId(CompileLinkVertexFragmentShader(vss, fss)),
                       modellocation(glGetUniformLocation(shaderProgramId, "model")),
                       viewlocation(glGetUniformLocation(shaderProgramId, "view")),
-                      projectionlocation(glGetUniformLocation(shaderProgramId, "projection")) {
+                      projectionlocation(glGetUniformLocation(shaderProgramId, "projection")),
+                      selectioncolorlocation(glGetUniformLocation(shaderProgramId, "selectioncolor")){
             }
 
             Renderer::~Renderer() {
@@ -74,11 +76,12 @@ namespace Render {
             }
 
             void
-            Renderer::Draw(Source &source, const glm::mat4 &model, const glm::mat4 &view, const glm::mat4 &projection) const {
+            Renderer::Draw(Source &source, const glm::mat4 &model, const glm::mat4 &view, const glm::mat4 &projection, float selectioncolor) const {
                 glUseProgram(shaderProgramId);
                 glUniformMatrix4fv(modellocation, 1, false, glm::value_ptr(model));
                 glUniformMatrix4fv(viewlocation, 1, false, glm::value_ptr(view));
                 glUniformMatrix4fv(projectionlocation, 1, false, glm::value_ptr(projection));
+                glUniform1f(selectioncolorlocation, selectioncolor);
                 source.Draw();
             }
     }

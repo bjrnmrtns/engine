@@ -22,12 +22,13 @@ namespace Render {
         public:
             Renderer();
             ~Renderer();
-            void Draw(Source &source, const glm::mat4 &model, const glm::mat4 &view, const glm::mat4 &projection) const;
+            void Draw(Source &source, const glm::mat4 &model, const glm::mat4 &view, const glm::mat4 &projection, float selectioncolor) const;
         private:
             const int shaderProgramId;
             const int modellocation;
             const int viewlocation;
             const int projectionlocation;
+            const int selectioncolorlocation;
         };
     }
 }

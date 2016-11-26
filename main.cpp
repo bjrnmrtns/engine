@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <algorithm>
+#include <chrono>
 
 #define GLM_FORCE_RADIANS 1
 #include <SDL2/SDL.h>
@@ -79,7 +80,24 @@ struct Selection
     glm::vec2 clickb;
     glm::vec3 clicka3d;
     glm::vec3 clickb3d;
-    bool valid;
+};
+
+bool IsEntitySelected(const glm::vec3& cornerA, const glm::vec3& cornerB, const glm::vec3& entityPosition)
+{
+    float xmin = std::min(cornerA.x, cornerB.x);
+    float zmin = std::min(cornerA.z, cornerB.z);
+    float xmax = std::max(cornerA.x, cornerB.x);
+    float zmax = std::max(cornerA.z, cornerB.z);
+    return (  xmin < entityPosition.x && entityPosition.x < xmax
+           && zmin < entityPosition.z && entityPosition.z < zmax);
+}
+
+class Entity
+{
+public:
+    glm::vec3 position;
+    bool selected = false;
+    float speed = 1; // 3 m/s
 };
 
 int main()
@@ -152,8 +170,15 @@ int main()
     int mousex = width / 2;
     int mousey = height / 2;
     Selection selection;
+    Entity entity;
+    auto lastTime = std::chrono::steady_clock::now();
+    std::chrono::duration<int, std::ratio<1,60>> tick(1);
 	while(!quit)
 	{
+        auto newTime = std::chrono::steady_clock::now();
+        auto ticks = (newTime - lastTime) / tick;
+        //std::cout << ticks << std::endl;
+        //entity.position.x = entity.speed * ticks * 0.1666;
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
@@ -161,8 +186,15 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         // 3D rendering
-        meshRenderer.Draw(grid, glm::mat4(1.0f), camera.GetView(), projectionM);
-        meshRenderer.Draw(tank, glm::mat4(1.0f), camera.GetView(), projectionM);
+        meshRenderer.Draw(grid, glm::mat4(1.0f), camera.GetView(), projectionM, 1);
+        if(entity.selected)
+        {
+            meshRenderer.Draw(tank, glm::translate(glm::mat4(1.0f), entity.position), camera.GetView(), projectionM, 1.0);
+        }
+        else
+        {
+            meshRenderer.Draw(tank, glm::translate(glm::mat4(1.0f), entity.position), camera.GetView(), projectionM, 0.5);
+        }
 
         if(selection.state == Selection::State::EndSelection)
         {
@@ -280,13 +312,11 @@ int main()
                 {
                     if (selection.state == Selection::State::NotSelecting)
                     {
-                        selection.state = Selection::State::BeginSelection;
                         if(MousePickTo3d(camera.GetView(), projectionM, width, height, mousex, mousey, selection.clicka3d))
                         {
+                            selection.state = Selection::State::BeginSelection;
                             selection.clicka = glm::vec2(mousex, mousey);
-                            selection.valid = true;
                         }
-                        selection.valid = false;
                     }
                     break;
                 }
@@ -294,13 +324,23 @@ int main()
                 {
                     if (selection.state == Selection::State::BeginSelection)
                     {
-                        selection.state = Selection::State::EndSelection;
                         if(MousePickTo3d(camera.GetView(), projectionM, width, height, mousex, mousey, selection.clickb3d))
                         {
+                            selection.state = Selection::State::EndSelection;
                             selection.clickb = glm::vec2(mousex, mousey);
-                            selection.valid = true;
+                            if(IsEntitySelected(selection.clicka3d, selection.clickb3d, entity.position))
+                            {
+                                entity.selected = true;
+                            }
+                            else
+                            {
+                                entity.selected = false;
+                            }
                         }
-                        selection.valid = false;
+                        else
+                        {
+                            selection.state = Selection::State::NotSelecting;
+                        }
                     }
                     break;
                 }
