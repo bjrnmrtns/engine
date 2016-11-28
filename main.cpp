@@ -99,18 +99,24 @@ bool IsEntitySelected(const glm::vec3& cornerA, const glm::vec3& cornerB, const 
 class Entity
 {
 public:
+    const int maxTeams = 1024;
+    static int lastEntityId;
     Entity(const glm::vec3& startPosition)
-    : position(startPosition)
+    : entityId(lastEntityId++)
+    , position(startPosition)
     {
     }
+    int entityId;
     glm::vec3 position;
     bool selected = false;
-    float speed = 1; // 3 m/s
+    float speed = 5.0f; // 3 m/s
     bool isAtTarget = true;
     glm::vec3 targetPosition;
 };
+int Entity::lastEntityId = 0;
 
 //TODO: teams with team color
+//TODO: Control -> CommandQueue -> UpdatePhysics
 //TOOD: networking (out of sync detection -> hash game state (placement new?))
 int main()
 {
@@ -187,8 +193,9 @@ int main()
     {
         entities.push_back(Entity(Configuration::EntityDefinitions[i].startpos));
     }
+    const int stepFrequency = 120;
     auto beginTime = std::chrono::steady_clock::now();
-    std::chrono::duration<int, std::ratio<1,60>> tick(1);
+    std::chrono::duration<int, std::ratio<1, stepFrequency>> tick(1);
     int ticksDone = 0;
 	while(!quit)
 	{
@@ -197,14 +204,14 @@ int main()
         int ticksTodo = ticksSinceBegin - ticksDone;
         ticksDone = ticksSinceBegin;
 
-        // Update world with fixed timestep
+        // UpdatePhysics with fixed timestep
         for(auto it = entities.begin(); it != entities.end(); ++it)
         {
             if(!it->isAtTarget)
             {
                 for(int i = 0; i < ticksTodo; i++)
                 {
-                    it->position += glm::normalize(it->targetPosition - it->position) * 0.1666;
+                    it->position += glm::normalize(it->targetPosition - it->position) * (it->speed / stepFrequency);
                     if(glm::length(it->position - it->targetPosition) < 1.0f)
                     {
                         it->isAtTarget = true;
