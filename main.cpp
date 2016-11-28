@@ -20,6 +20,7 @@
 #include "RenderUI.h"
 #include "Model.h"
 #include "Camera.h"
+#include "Configuration.h"
 
 static const bool SCREEN_FULLSCREEN = false;
 static const int SCREEN_WIDTH  = 960;
@@ -48,6 +49,7 @@ struct Keys
 {
     bool w = false, a = false, s = false, d = false; // camera movement
     bool leftctrl = false;
+    bool t = false; // targetclick -> change to right mouse button
 };
 
 void HandleKeysForCamera(Keys& keys, Camera& camera)
@@ -76,6 +78,8 @@ struct Selection
     Selection() : state(NotSelecting) {};
     enum State { NotSelecting, BeginSelection, EndSelection };
     State state;
+    //TODO: consider all 2d corners and convert all 4 to 3d and see what is selected
+    // now the rectangle in 2d doesn't exactly represent the 3d one.
     glm::vec2 clicka;
     glm::vec2 clickb;
     glm::vec3 clicka3d;
@@ -95,11 +99,21 @@ bool IsEntitySelected(const glm::vec3& cornerA, const glm::vec3& cornerB, const 
 class Entity
 {
 public:
+    Entity(const glm::vec3& startPosition)
+    : position(startPosition)
+    {
+    }
     glm::vec3 position;
     bool selected = false;
     float speed = 1; // 3 m/s
+    bool isAtTarget = true;
+    glm::vec3 targetPosition;
 };
 
+//TODO: target click and move
+//TODO: teams with team color
+//TODO: time based deterministic movement
+//TOOD: networking (out of sync detection -> hash game state (placement new?))
 int main()
 {
 	SDL_Event event;
@@ -170,15 +184,36 @@ int main()
     int mousex = width / 2;
     int mousey = height / 2;
     Selection selection;
-    Entity entity;
-    auto lastTime = std::chrono::steady_clock::now();
+    std::vector<Entity> entities;
+    for(size_t i = 0; i < sizeof(Configuration::EntityDefinitions) / sizeof(Configuration::EntityDefinition); i++)
+    {
+        entities.push_back(Entity(Configuration::EntityDefinitions[i].startpos));
+    }
+    auto beginTime = std::chrono::steady_clock::now();
     std::chrono::duration<int, std::ratio<1,60>> tick(1);
+    int ticksDone = 0;
 	while(!quit)
 	{
-        auto newTime = std::chrono::steady_clock::now();
-        auto ticks = (newTime - lastTime) / tick;
-        //std::cout << ticks << std::endl;
-        //entity.position.x = entity.speed * ticks * 0.1666;
+        auto currentTime = std::chrono::steady_clock::now();
+        int ticksSinceBegin = (currentTime - beginTime) / tick;
+        int ticksTodo = ticksSinceBegin - ticksDone;
+        ticksDone = ticksSinceBegin;
+
+        // Update world with fixed timestep
+        for(auto it = entities.begin(); it != entities.end(); ++it)
+        {
+            if(!it->isAtTarget)
+            {
+                for(int i = 0; i < ticksTodo; i++)
+                {
+                    it->position += glm::normalize(it->targetPosition - it->position) * 0.1666;
+                    if(glm::length(it->position - it->targetPosition) < 1.0f)
+                    {
+                        it->isAtTarget = true;
+                    }
+                }
+            }
+        }
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
@@ -187,13 +222,16 @@ int main()
 
         // 3D rendering
         meshRenderer.Draw(grid, glm::mat4(1.0f), camera.GetView(), projectionM, 1);
-        if(entity.selected)
+        for(auto it = entities.begin(); it != entities.end(); ++it)
         {
-            meshRenderer.Draw(tank, glm::translate(glm::mat4(1.0f), entity.position), camera.GetView(), projectionM, 1.0);
-        }
-        else
-        {
-            meshRenderer.Draw(tank, glm::translate(glm::mat4(1.0f), entity.position), camera.GetView(), projectionM, 0.5);
+            if(it->selected)
+            {
+                meshRenderer.Draw(tank, glm::translate(glm::mat4(1.0f), it->position), camera.GetView(), projectionM, 1.0);
+            }
+            else
+            {
+                meshRenderer.Draw(tank, glm::translate(glm::mat4(1.0f), it->position), camera.GetView(), projectionM, 0.5);
+            }
         }
 
         if(selection.state == Selection::State::EndSelection)
@@ -257,6 +295,11 @@ int main()
                             keys.d = true;
                             break;
                         }
+                        case SDLK_t:
+                        {
+                            keys.t = true;
+                            break;
+                        }
                         case SDLK_LCTRL:
                         {
                             keys.leftctrl = true;
@@ -289,6 +332,11 @@ int main()
                             keys.d = false;
                             break;
                         }
+                        case SDLK_t:
+                        {
+                            keys.t = false;
+                            break;
+                        }
                         case SDLK_LCTRL:
                         {
                             keys.leftctrl = false;
@@ -310,7 +358,22 @@ int main()
                 }
                 case SDL_MOUSEBUTTONDOWN:
                 {
-                    if (selection.state == Selection::State::NotSelecting)
+                    if(keys.t)
+                    {
+                        glm::vec3 target;
+                        if(MousePickTo3d(camera.GetView(), projectionM, width, height, mousex, mousey, target))
+                        {
+                            for(auto it = entities.begin(); it != entities.end(); ++it)
+                            {
+                                if(it->selected)
+                                {
+                                    it->targetPosition = target;
+                                    it->isAtTarget = false;
+                                }
+                            }
+                        }
+                    }
+                    if (!keys.t && selection.state == Selection::State::NotSelecting)
                     {
                         if(MousePickTo3d(camera.GetView(), projectionM, width, height, mousex, mousey, selection.clicka3d))
                         {
@@ -328,13 +391,16 @@ int main()
                         {
                             selection.state = Selection::State::EndSelection;
                             selection.clickb = glm::vec2(mousex, mousey);
-                            if(IsEntitySelected(selection.clicka3d, selection.clickb3d, entity.position))
+                            for(auto it = entities.begin(); it != entities.end(); ++it)
                             {
-                                entity.selected = true;
-                            }
-                            else
-                            {
-                                entity.selected = false;
+                                if(IsEntitySelected(selection.clicka3d, selection.clickb3d, it->position))
+                                {
+                                    it->selected = true;
+                                }
+                                else
+                                {
+                                    it->selected = false;
+                                }
                             }
                         }
                         else
