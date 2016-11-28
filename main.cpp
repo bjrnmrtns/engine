@@ -110,9 +110,7 @@ public:
     glm::vec3 targetPosition;
 };
 
-//TODO: target click and move
 //TODO: teams with team color
-//TODO: time based deterministic movement
 //TOOD: networking (out of sync detection -> hash game state (placement new?))
 int main()
 {
