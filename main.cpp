@@ -73,6 +73,16 @@ void HandleKeysForCamera(Keys& keys, Camera& camera)
     }
 }
 
+struct Command
+{
+    enum CommandType { Move };
+    int entityId;
+    int teamId;
+    glm::vec3 targetPosition;
+    CommandType type;
+    int tick;
+};
+
 struct Selection
 {
     Selection() : state(NotSelecting) {};
@@ -106,6 +116,7 @@ public:
     , position(startPosition)
     {
     }
+    int teamId = 0;
     int entityId;
     glm::vec3 position;
     bool selected = false;
@@ -116,7 +127,7 @@ public:
 int Entity::lastEntityId = 0;
 
 //TODO: teams with team color
-//TODO: Control -> CommandQueue -> UpdatePhysics
+//TODO: CommandQueue -> UpdatePhysics
 //TOOD: networking (out of sync detection -> hash game state (placement new?))
 int main()
 {
@@ -193,6 +204,7 @@ int main()
     {
         entities.push_back(Entity(Configuration::EntityDefinitions[i].startpos));
     }
+    std::vector<Command> commandQueue;
     const int stepFrequency = 120;
     auto beginTime = std::chrono::steady_clock::now();
     std::chrono::duration<int, std::ratio<1, stepFrequency>> tick(1);
@@ -372,6 +384,13 @@ int main()
                             {
                                 if(it->selected)
                                 {
+                                    Command command;
+                                    command.type = Command::Move;
+                                    command.teamId = it->teamId;
+                                    command.entityId = it->entityId;
+                                    command.targetPosition = target;
+                                    command.tick = ticksSinceBegin;
+                                    commandQueue.push_back(command);
                                     it->targetPosition = target;
                                     it->isAtTarget = false;
                                 }
