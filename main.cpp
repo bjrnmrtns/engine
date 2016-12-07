@@ -83,6 +83,25 @@ struct Command
     int tick;
 };
 
+void SendToServer(int tick, std::vector<Command>& toSend, std::vector<Command>& serverCommandQueue)
+{
+    for(auto& command: toSend)
+    {
+        command.tick = tick;
+        serverCommandQueue.push_back(command);
+    }
+    toSend.clear();
+}
+
+void ReceiveFromServer(std::vector<Command>& toReceive, std::vector<Command>& serverCommandQueue)
+{
+    for(auto& command: serverCommandQueue)
+    {
+        toReceive.push_back(command);
+    }
+    serverCommandQueue.clear();
+}
+
 struct Selection
 {
     Selection() : state(NotSelecting) {};
@@ -126,11 +145,16 @@ public:
 };
 int Entity::lastEntityId = 0;
 
-//TODO: teams with team color
 //TODO: CommandQueue -> UpdatePhysics
 //TOOD: networking (out of sync detection -> hash game state (placement new?))
-int main()
+int main(int argc, char* argv[])
 {
+    bool isServer = false;
+    if(argc > 1 && (std::string(argv[1]) == std::string("--host")))
+    {
+        std::cout << "Starting as host..." << std::endl;
+        isServer = true;
+    }
 	SDL_Event event;
 	bool quit = false;
 	if(SDL_Init(SDL_INIT_VIDEO) < 0)
@@ -164,12 +188,7 @@ int main()
 		fprintf(stderr, "Failed to create OpenGL context: %s\n",  SDL_GetError());
 		exit(2);
 	}
-	// Check OpenGL properties
-	printf("OpenGL loaded\n");
 	gladLoadGLLoader(SDL_GL_GetProcAddress);
-	printf("Vendor:   %s\n", glGetString(GL_VENDOR));
-	printf("Renderer: %s\n", glGetString(GL_RENDERER));
-	printf("Version:  %s\n", glGetString(GL_VERSION));
 
 	SDL_GL_SetSwapInterval(1);
 
@@ -204,7 +223,9 @@ int main()
     {
         entities.push_back(Entity(Configuration::EntityDefinitions[i].startpos));
     }
-    std::vector<Command> commandQueue;
+    std::vector<Command> clientCommandQueueToSend;
+    std::vector<Command> serverCommandQueue;
+    std::vector<Command> clientCommandQueue;
     const int stepFrequency = 120;
     auto beginTime = std::chrono::steady_clock::now();
     std::chrono::duration<int, std::ratio<1, stepFrequency>> tick(1);
@@ -215,6 +236,9 @@ int main()
         int ticksSinceBegin = (currentTime - beginTime) / tick;
         int ticksTodo = ticksSinceBegin - ticksDone;
         ticksDone = ticksSinceBegin;
+        
+        SendToServer(ticksSinceBegin, clientCommandQueueToSend, serverCommandQueue);
+        ReceiveFromServer(clientCommandQueue, serverCommandQueue);
 
         // UpdatePhysics with fixed timestep
         for(auto it = entities.begin(); it != entities.end(); ++it)
@@ -389,8 +413,7 @@ int main()
                                     command.teamId = it->teamId;
                                     command.entityId = it->entityId;
                                     command.targetPosition = target;
-                                    command.tick = ticksSinceBegin;
-                                    commandQueue.push_back(command);
+                                    clientCommandQueueToSend.push_back(command);
                                     it->targetPosition = target;
                                     it->isAtTarget = false;
                                 }
