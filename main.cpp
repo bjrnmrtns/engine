@@ -75,9 +75,8 @@ void HandleKeysForCamera(Keys& keys, Camera& camera)
 
 struct Command
 {
-    enum CommandType { Move };
+    enum CommandType { Tick, Move };
     int entityId;
-    int teamId;
     glm::vec3 targetPosition;
     CommandType type;
     int tick;
@@ -85,9 +84,12 @@ struct Command
 
 void SendToServer(int tick, std::vector<Command>& toSend, std::vector<Command>& serverCommandQueue)
 {
+    Command tickCommand;
+    tickCommand.type = Command::Tick;
+    tickCommand.tick = tick;
+    serverCommandQueue.push_back(tickCommand);
     for(auto& command: toSend)
     {
-        command.tick = tick;
         serverCommandQueue.push_back(command);
     }
     toSend.clear();
@@ -145,15 +147,21 @@ public:
 };
 int Entity::lastEntityId = 0;
 
-//TODO: CommandQueue -> UpdatePhysics
-//TOOD: networking (out of sync detection -> hash game state (placement new?))
+//TODO: Make mouse releasable
+//TODO: Real networking (out of sync detection -> hash game state (placement new?))
 int main(int argc, char* argv[])
 {
     bool isServer = false;
-    if(argc > 1 && (std::string(argv[1]) == std::string("--host")))
+    bool isClient = false;
+    if(argc > 1 && (std::string(argv[1]) == std::string("--server")))
     {
         std::cout << "Starting as host..." << std::endl;
         isServer = true;
+    }
+    if(argc > 1 && (std::string(argv[1]) == std::string("--client")))
+    {
+        std::cout << "Starting as client..." << std::endl;
+        isClient = true;
     }
 	SDL_Event event;
 	bool quit = false;
@@ -227,34 +235,57 @@ int main(int argc, char* argv[])
     std::vector<Command> serverCommandQueue;
     std::vector<Command> clientCommandQueue;
     const int stepFrequency = 120;
-    auto beginTime = std::chrono::steady_clock::now();
+    auto serverBeginTime = std::chrono::steady_clock::now();
     std::chrono::duration<int, std::ratio<1, stepFrequency>> tick(1);
-    int ticksDone = 0;
+    int lastClientTick = 0;
 	while(!quit)
 	{
         auto currentTime = std::chrono::steady_clock::now();
-        int ticksSinceBegin = (currentTime - beginTime) / tick;
-        int ticksTodo = ticksSinceBegin - ticksDone;
-        ticksDone = ticksSinceBegin;
+        int serverTick = (currentTime - serverBeginTime) / tick;
         
-        SendToServer(ticksSinceBegin, clientCommandQueueToSend, serverCommandQueue);
+        SendToServer(serverTick, clientCommandQueueToSend, serverCommandQueue);
         ReceiveFromServer(clientCommandQueue, serverCommandQueue);
 
-        // UpdatePhysics with fixed timestep
-        for(auto it = entities.begin(); it != entities.end(); ++it)
+        for(auto& command: clientCommandQueue)
         {
-            if(!it->isAtTarget)
+            switch(command.type)
             {
-                for(int i = 0; i < ticksTodo; i++)
+                case Command::Tick:
                 {
-                    it->position += glm::normalize(it->targetPosition - it->position) * (it->speed / stepFrequency);
-                    if(glm::length(it->position - it->targetPosition) < 1.0f)
+                    int ticksTodo = command.tick - lastClientTick;
+                    for(int i = 0; i < ticksTodo; i++)
                     {
-                        it->isAtTarget = true;
+                        for(auto it = entities.begin(); it != entities.end(); ++it)
+                        {
+                            if(!it->isAtTarget)
+                            {
+                                it->position += glm::normalize(it->targetPosition - it->position) * (it->speed / stepFrequency);
+                                if(glm::length(it->position - it->targetPosition) < 1.0f)
+                                {
+                                    it->isAtTarget = true;
+                                }
+                            }
+                        }
                     }
+                    lastClientTick = command.tick;
+                    break;
+                }
+                case Command::Move:
+                {
+                    for(auto& entity: entities)
+                    {
+                        if(entity.entityId == command.entityId)
+                        {
+                            entity.targetPosition = command.targetPosition;
+                            entity.isAtTarget = false;
+                        }
+                    }
+                    break;
                 }
             }
         }
+        clientCommandQueue.clear();
+
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glCullFace(GL_FRONT);
@@ -410,12 +441,9 @@ int main(int argc, char* argv[])
                                 {
                                     Command command;
                                     command.type = Command::Move;
-                                    command.teamId = it->teamId;
                                     command.entityId = it->entityId;
                                     command.targetPosition = target;
                                     clientCommandQueueToSend.push_back(command);
-                                    it->targetPosition = target;
-                                    it->isAtTarget = false;
                                 }
                             }
                         }
