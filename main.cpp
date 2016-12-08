@@ -148,8 +148,6 @@ public:
 int Entity::lastEntityId = 0;
 
 //TODO: Real networking (out of sync detection -> hash game state (placement new?))
-//TODO: Fix picking. 2 points should look at 4 points in 3d.
-//TODO: Create command
 int main(int argc, char* argv[])
 {
     bool isServer = false;
