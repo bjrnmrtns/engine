@@ -147,8 +147,9 @@ public:
 };
 int Entity::lastEntityId = 0;
 
-//TODO: Make mouse releasable
 //TODO: Real networking (out of sync detection -> hash game state (placement new?))
+//TODO: Fix picking. 2 points should look at 4 points in 3d.
+//TODO: Create command
 int main(int argc, char* argv[])
 {
     bool isServer = false;
@@ -202,6 +203,7 @@ int main(int argc, char* argv[])
 
 	int width, height;
 	SDL_GetWindowSize(window, &width, &height);
+    SDL_SetRelativeMouseMode(SDL_TRUE);
 	glViewport(0, 0, width, height);
 
     float near = 0.1f;
@@ -326,8 +328,6 @@ int main(int argc, char* argv[])
         uiRenderer.Draw(ui, projectionui);
         
 		SDL_GL_SwapWindow(window);
-        SDL_WarpMouseInWindow(window, width / 2.0f, height / 2.0f);
-        SDL_SetRelativeMouseMode(SDL_TRUE);
         HandleKeysForCamera(keys, camera);
 		while(SDL_PollEvent(&event))
 		{
@@ -375,6 +375,13 @@ int main(int argc, char* argv[])
                         case SDLK_LCTRL:
                         {
                             keys.leftctrl = true;
+                            break;
+                        }
+                        case SDLK_TAB:
+                        {
+                            static bool lasttab = true;
+                            SDL_SetRelativeMouseMode(lasttab ? SDL_TRUE : SDL_FALSE);
+                            lasttab = !lasttab;
                             break;
                         }
                     }
