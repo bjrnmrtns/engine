@@ -13,21 +13,21 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
 add_executable(demo
 	thirdparty/glad/src/glad.c
-	main.cpp
-	Configuration.h
-	UiElements.cpp
-	UiElements.h
-	Model.cpp
-	Model.h
-	Camera.cpp
-	Camera.h
-	RenderTools.cpp
-	RenderTools.h
-	RenderMesh.cpp
-	RenderMesh.h
-	RenderUI.cpp
-	RenderUI.h
-	VertexDefinitions.h)
+	src/main.cpp
+	src/Configuration.h
+	src/UiElements.cpp
+	src/UiElements.h
+	src/Model.cpp
+	src/Model.h
+	src/Camera.cpp
+	src/Camera.h
+	src/RenderTools.cpp
+	src/RenderTools.h
+	src/RenderMesh.cpp
+	src/RenderMesh.h
+	src/RenderUI.cpp
+	src/RenderUI.h
+	src/VertexDefinitions.h)
 
 target_include_directories(demo PUBLIC
 	${GLM_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} ${FREETYPE_INCLUDE_DIRS} thirdparty/glad/include
