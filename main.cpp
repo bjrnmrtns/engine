@@ -150,6 +150,8 @@ int Entity::lastEntityId = 0;
 //TODO: Real networking (out of sync detection -> hash game state (placement new?))
 int main(int argc, char* argv[])
 {
+    int serverport = 4600;
+    int clientport = 4601;
     bool isServer = false;
     bool isClient = false;
     if(argc > 1 && (std::string(argv[1]) == std::string("--server")))
