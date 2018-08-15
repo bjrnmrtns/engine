@@ -1,5 +1,5 @@
 #include "RenderTools.hpp"
-#include <glad/glad.h>
+#include <GL/glew.h>
 #include <iostream>
 
 int CompileLinkVertexFragmentShader(const char *vss, const char *fss) {

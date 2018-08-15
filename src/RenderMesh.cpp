@@ -1,7 +1,7 @@
 #include "RenderMesh.hpp"
 #include "RenderTools.hpp"
 
-#include <glad/glad.h>
+#include <GL/glew.h>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Render {

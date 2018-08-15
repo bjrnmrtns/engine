@@ -8,7 +8,7 @@
 #define GLM_FORCE_RADIANS 1
 #include <SDL2/SDL.h>
 
-#include <glad/glad.h>
+#include <GL/glew.h>
 #include <glm/ext.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -167,7 +167,10 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Failed to create OpenGL context: %s\n", SDL_GetError());
         exit(2);
     }
-    gladLoadGLLoader(SDL_GL_GetProcAddress);
+    GLenum err = glewInit();
+    if (GLEW_OK != err) {
+        fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+    }
 
     SDL_GL_SetSwapInterval(1);
 
