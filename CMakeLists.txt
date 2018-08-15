@@ -10,7 +10,6 @@ find_package(GLM REQUIRED)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
-
 add_executable(${PROJECT_NAME}
 	src/main.cpp
 	src/Configuration.cpp
@@ -21,24 +20,27 @@ add_executable(${PROJECT_NAME}
 	src/Model.hpp
 	src/Camera.cpp
 	src/Camera.hpp
-	src/RenderTools.cpp
-	src/RenderTools.hpp
 	src/RenderMesh.cpp
 	src/RenderMesh.hpp
 	src/RenderUI.cpp
 	src/RenderUI.hpp
 	src/VertexDefinitions.cpp
-	src/VertexDefinitions.hpp)
+	src/VertexDefinitions.hpp
+)
+
+add_subdirectory(src/Renderer)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-	${GLM_INCLUDE_DIRS} ${SDL2_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS}
+	${SDL2_INCLUDE_DIRS} ${GLEW_INCLUDE_DIRS}
+        GLM
 )
 
 target_link_libraries(${PROJECT_NAME}
+    PRIVATE
 	${SDL2_LIBRARIES}
 	${GLEW_LIBRARIES}
 	${OPENGL_gl_LIBRARY}
-
+	Renderer
 )
 
 set(CMAKE_BINARY_DIR ${CMAKE_SOURCE_DIR}/bin)
