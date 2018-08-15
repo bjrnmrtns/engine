@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VertexDefinitions.h"
+#include "VertexDefinitions.hpp"
 #include <vector>
 
 namespace Model

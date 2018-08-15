@@ -1,5 +1,5 @@
-#include "RenderMesh.h"
-#include "RenderTools.h"
+#include "RenderMesh.hpp"
+#include "RenderTools.hpp"
 
 #include <glad/glad.h>
 #include <glm/gtc/type_ptr.hpp>

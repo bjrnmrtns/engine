@@ -15,12 +15,12 @@
 
 #include <array>
 
-#include "UiElements.h"
-#include "RenderMesh.h"
-#include "RenderUI.h"
-#include "Model.h"
-#include "Camera.h"
-#include "Configuration.h"
+#include "UiElements.hpp"
+#include "RenderMesh.hpp"
+#include "RenderUI.hpp"
+#include "Model.hpp"
+#include "Camera.hpp"
+#include "Configuration.hpp"
 
 static const bool SCREEN_FULLSCREEN = false;
 static const int SCREEN_WIDTH  = 960;

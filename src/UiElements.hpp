@@ -1,6 +1,6 @@
 #pragma once
 
-#include "VertexDefinitions.h"
+#include "VertexDefinitions.hpp"
 #include <vector>
 
 std::vector<UI::Vertex> generateSquare(int x, int y, int w, int h, const glm::vec3& color);

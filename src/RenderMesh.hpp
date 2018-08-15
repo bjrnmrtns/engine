@@ -1,7 +1,7 @@
 #pragma once
 
 #include <glm/glm.hpp>
-#include "VertexDefinitions.h"
+#include "VertexDefinitions.hpp"
 
 namespace Render {
     namespace Mesh {

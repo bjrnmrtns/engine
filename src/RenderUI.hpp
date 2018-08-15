@@ -4,8 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "VertexDefinitions.h"
-#include "RenderTools.h"
+#include "VertexDefinitions.hpp"
+#include "RenderTools.hpp"
 
 namespace Render {
     namespace UI {

@@ -1,4 +1,4 @@
-#include "UiElements.h"
+#include "UiElements.hpp"
 
 std::vector<UI::Vertex> generateSquare(int x, int y, int w, int h, const glm::vec3& color)
 {
