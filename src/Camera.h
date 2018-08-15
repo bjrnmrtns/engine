@@ -1,5 +1,4 @@
-#ifndef CAMERA_H
-#define CAMERA_H
+#pragma once
 
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/glm.hpp>
@@ -24,5 +23,3 @@ private:
     // the second one is about the updown around the x-axis.
     static glm::mat4 ArcBallRotation(float around, float updown);
 };
-
-#endif

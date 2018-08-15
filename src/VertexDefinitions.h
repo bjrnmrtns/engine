@@ -1,5 +1,4 @@
-#ifndef VERTEX_DEFINITIONS_H
-#define VERTEX_DEFINITIONS_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include <vector>
@@ -23,4 +22,3 @@ namespace UI {
         glm::vec3 c;
 };
 }
-#endif

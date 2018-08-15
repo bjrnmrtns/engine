@@ -1,6 +1,3 @@
-#ifndef RENDER_TOOLS_H
-#define RENDER_TOOLS_H
+#pragma once
 
 int CompileLinkVertexFragmentShader(const char* vss, const char* fss);
-
-#endif

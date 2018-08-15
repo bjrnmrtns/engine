@@ -1,5 +1,4 @@
-#ifndef MODEL_H
-#define MODEL_H
+#pragma once
 
 #include "VertexDefinitions.h"
 #include <vector>
@@ -16,5 +15,3 @@ namespace Model
     const ::Mesh::TStaticMesh ChangeColor(::Mesh::TStaticMesh mesh, glm::vec3 color);
     const ::Mesh::TStaticMesh AdjustColor(::Mesh::TStaticMesh mesh, glm::vec3 color);
 }
-
-#endif

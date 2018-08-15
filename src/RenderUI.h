@@ -1,5 +1,4 @@
-#ifndef UI_RENDERER_H
-#define UI_RENDERER_H
+#pragma once
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -34,5 +33,3 @@ namespace Render {
         };
     }
 }
-
-#endif

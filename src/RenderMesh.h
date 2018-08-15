@@ -1,5 +1,4 @@
-#ifndef MESH_RENDERER_H
-#define MESH_RENDERER_H
+#pragma once
 
 #include <glm/glm.hpp>
 #include "VertexDefinitions.h"
@@ -32,5 +31,3 @@ namespace Render {
         };
     }
 }
-
-#endif

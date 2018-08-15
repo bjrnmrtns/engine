@@ -1,5 +1,4 @@
-#ifndef CONFIGURATION_H
-#define CONFIGURATION_H
+#pragma once
 
 #include <glm/glm.hpp>
 
@@ -18,4 +17,3 @@ static EntityDefinition EntityDefinitions[] {
     { glm::vec3(3, 0, 3) }
 };
 }
-#endif
