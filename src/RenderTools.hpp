@@ -1,3 +1,3 @@
 #pragma once
 
-int CompileLinkVertexFragmentShader(const char* vss, const char* fss);
+int CompileLinkVertexFragmentShader(const char *vss, const char *fss);
